@@ -1,0 +1,329 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ ENUM ============
+
+enum JabatanLab {
+  KEPALA_LAB
+  PLP
+  ASISTEN
+}
+
+enum JenisJadwal {
+  PRAKTIKUM
+  SEMINAR
+  LAINNYA
+}
+
+enum JenisPengajuan {
+  ALAT
+  RUANGAN
+  PENELITIAN
+}
+
+enum StatusPengajuan {
+  MENUNGGU
+  DISETUJUI
+  DITOLAK
+  SELESAI
+  DIBATALKAN
+}
+
+enum JenisTes {
+  PRETEST
+  POSTEST
+}
+
+enum TipePertanyaan {
+  SKALA // 1-5
+  TEKS
+}
+
+// ============ AKUN STAF (kalab, PLP, asisten: hak akses sama) ============
+
+model Staff {
+  id           Int         @id @default(autoincrement())
+  nama         String
+  email        String      @unique
+  passwordHash String
+  aktif        Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  pengajuan    Pengajuan[]
+}
+
+// ============ INFORMASI LAB ============
+
+// Data tampilan di halaman Struktur (terpisah dari akun login)
+model AnggotaLab {
+  id        Int        @id @default(autoincrement())
+  nama      String
+  jabatan   JabatanLab
+  nipNpm    String?
+  email     String?
+  kontak    String?
+  bidang    String?
+  fotoUrl   String?
+  urutan    Int        @default(0)
+  aktif     Boolean    @default(true)
+}
+
+// Pengaturan teks umum: visi, misi, sejarah, alamat, kontak, dll.
+model Pengaturan {
+  id    Int    @id @default(autoincrement())
+  kunci String @unique
+  nilai String @db.Text
+}
+
+model Pengumuman {
+  id            Int       @id @default(autoincrement())
+  judul         String
+  isi           String    @db.Text
+  mulaiTampil   DateTime  @default(now())
+  selesaiTampil DateTime?
+  aktif         Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+}
+
+// ============ INVENTARIS ============
+
+model Ruangan {
+  id        Int         @id @default(autoincrement())
+  nama      String
+  kapasitas Int?
+  deskripsi String?
+  aktif     Boolean     @default(true)
+  jadwal    Jadwal[]
+  pengajuan Pengajuan[]
+}
+
+model Alat {
+  id        Int             @id @default(autoincrement())
+  nama      String
+  kategori  String?
+  stokTotal Int             @default(1)
+  kondisi   String?         @default("Baik")
+  deskripsi String?
+  fotoUrl   String?
+  aktif     Boolean         @default(true)
+  dipinjam  PengajuanAlat[]
+}
+
+// ============ JADWAL ============
+
+model Jadwal {
+  id          Int         @id @default(autoincrement())
+  judul       String
+  jenis       JenisJadwal @default(PRAKTIKUM)
+  mulai       DateTime
+  selesai     DateTime
+  ruanganId   Int?
+  ruangan     Ruangan?    @relation(fields: [ruanganId], references: [id])
+  praktikumId Int?
+  praktikum   Praktikum?  @relation(fields: [praktikumId], references: [id])
+  kelas       String?
+  pengampu    String? // dosen / asisten / pemateri
+  keterangan  String?
+  createdAt   DateTime    @default(now())
+
+  @@index([mulai])
+}
+
+// ============ PENGAJUAN (alat, ruangan, penelitian) ============
+// Tanpa login: pemohon mengisi data langsung, dilacak dengan kode.
+
+model Pengajuan {
+  id              Int             @id @default(autoincrement())
+  kode            String          @unique // contoh: LTD-20261106-AB12
+  jenis           JenisPengajuan
+  status          StatusPengajuan @default(MENUNGGU)
+
+  // data pemohon
+  namaLengkap     String
+  npm             String
+  programStudi    String
+  email           String
+  noHp            String
+
+  // data kegiatan
+  keperluan       String          @db.Text
+  keterangan      String?         @db.Text
+  tanggalMulai    DateTime
+  tanggalSelesai  DateTime
+
+  // khusus ruangan
+  ruanganId       Int?
+  ruangan         Ruangan?        @relation(fields: [ruanganId], references: [id])
+
+  // khusus penelitian
+  judulPenelitian String?
+  dosenPembimbing String?
+  abstrak         String?         @db.Text
+
+  // bukti dokumen: unggah file ATAU tautan Google Drive
+  buktiUrl        String?
+  buktiLink       String?
+
+  // alat yang dipinjam (untuk jenis ALAT, atau PENELITIAN yang butuh alat)
+  alat            PengajuanAlat[]
+
+  // pemrosesan admin
+  catatanAdmin    String?         @db.Text
+  diprosesOlehId  Int?
+  diprosesOleh    Staff?          @relation(fields: [diprosesOlehId], references: [id])
+  diprosesPada    DateTime?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([status])
+  @@index([jenis])
+  @@index([tanggalMulai])
+}
+
+model PengajuanAlat {
+  id          Int       @id @default(autoincrement())
+  pengajuanId Int
+  pengajuan   Pengajuan @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
+  alatId      Int
+  alat        Alat      @relation(fields: [alatId], references: [id])
+  jumlah      Int       @default(1)
+
+  @@unique([pengajuanId, alatId])
+}
+
+// ============ PRAKTIKUM: MODUL, PRETEST, POSTEST ============
+
+model Praktikum {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  slug      String   @unique
+  deskripsi String?  @db.Text
+  aktif     Boolean  @default(true)
+  modul     Modul[]
+  jadwal    Jadwal[]
+}
+
+model Modul {
+  id          Int       @id @default(autoincrement())
+  praktikumId Int
+  praktikum   Praktikum @relation(fields: [praktikumId], references: [id], onDelete: Cascade)
+  judul       String
+  deskripsi   String?   @db.Text
+  fileUrl     String?
+  urutan      Int       @default(0)
+  tes         Tes[]
+  createdAt   DateTime  @default(now())
+}
+
+// Satu modul punya maksimal satu pretest dan satu postest
+model Tes {
+  id          Int        @id @default(autoincrement())
+  modulId     Int
+  modul       Modul      @relation(fields: [modulId], references: [id], onDelete: Cascade)
+  jenis       JenisTes
+  judul       String
+  durasiMenit Int?
+  aktif       Boolean    @default(true)
+  soal        Soal[]
+  hasil       HasilTes[]
+
+  @@unique([modulId, jenis])
+}
+
+// Pilihan ganda: opsi disimpan sebagai array JSON, jawabanBenar = indeks opsi (0,1,2,...)
+model Soal {
+  id           Int    @id @default(autoincrement())
+  tesId        Int
+  tes          Tes    @relation(fields: [tesId], references: [id], onDelete: Cascade)
+  pertanyaan   String @db.Text
+  opsi         Json
+  jawabanBenar Int
+  urutan       Int    @default(0)
+}
+
+// Peserta tidak login: cukup isi nama dan NPM
+model HasilTes {
+  id           Int      @id @default(autoincrement())
+  tesId        Int
+  tes          Tes      @relation(fields: [tesId], references: [id], onDelete: Cascade)
+  namaPeserta  String
+  npm          String
+  skor         Float
+  jumlahBenar  Int
+  jumlahSoal   Int
+  jawaban      Json
+  createdAt    DateTime @default(now())
+
+  @@index([tesId])
+}
+
+// ============ SURVEI KEPUASAN (anonim) ============
+
+model Survei {
+  id         Int                @id @default(autoincrement())
+  judul      String
+  deskripsi  String?
+  aktif      Boolean            @default(true)
+  pertanyaan PertanyaanSurvei[]
+  respon     ResponSurvei[]
+  createdAt  DateTime           @default(now())
+}
+
+model PertanyaanSurvei {
+  id        Int              @id @default(autoincrement())
+  surveiId  Int
+  survei    Survei           @relation(fields: [surveiId], references: [id], onDelete: Cascade)
+  teks      String
+  tipe      TipePertanyaan   @default(SKALA)
+  urutan    Int              @default(0)
+  jawaban   JawabanSurvei[]
+}
+
+// Tidak menyimpan identitas apa pun
+model ResponSurvei {
+  id        Int             @id @default(autoincrement())
+  surveiId  Int
+  survei    Survei          @relation(fields: [surveiId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  jawaban   JawabanSurvei[]
+}
+
+model JawabanSurvei {
+  id           Int              @id @default(autoincrement())
+  responId     Int
+  respon       ResponSurvei     @relation(fields: [responId], references: [id], onDelete: Cascade)
+  pertanyaanId Int
+  pertanyaan   PertanyaanSurvei @relation(fields: [pertanyaanId], references: [id], onDelete: Cascade)
+  nilai        Int?
+  teks         String?          @db.Text
+}
+
+// ============ DOKUMENTASI / KEGIATAN ============
+
+model Dokumentasi {
+  id        Int              @id @default(autoincrement())
+  judul     String
+  slug      String           @unique
+  ringkasan String?
+  isi       String?          @db.Text
+  coverUrl  String?
+  tanggal   DateTime         @default(now())
+  terbit    Boolean          @default(true)
+  foto      DokumentasiFoto[]
+  createdAt DateTime         @default(now())
+}
+
+model DokumentasiFoto {
+  id            Int         @id @default(autoincrement())
+  dokumentasiId Int
+  dokumentasi   Dokumentasi @relation(fields: [dokumentasiId], references: [id], onDelete: Cascade)
+  url           String
+  caption       String?
+  urutan        Int         @default(0)
+}
