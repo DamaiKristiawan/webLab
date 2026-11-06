@@ -40,6 +40,48 @@
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
+@theme {
+  --animate-fade-up: fade-up 0.8s ease-out both;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-trace: trace 8s linear infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 40%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 0 6px color-mix(in srgb, currentColor 0%, transparent);
+    }
+  }
+
+  @keyframes trace {
+    from {
+      transform: translateX(-30vw);
+      opacity: 0;
+    }
+    10%,
+    90% {
+      opacity: 1;
+    }
+    to {
+      transform: translateX(110vw);
+      opacity: 0;
+    }
+  }
+}
+
 @layer base {
   * {
     border-color: var(--border);
@@ -50,6 +92,16 @@
   }
   html {
     scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -68,5 +120,52 @@
   }
   .card {
     @apply rounded-xl border border-border bg-card;
+  }
+
+  /* Latar grid ala papan sirkuit */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, #000 30%, transparent 78%);
+    mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, #000 30%, transparent 78%);
+  }
+
+  /* Bercak cahaya lembut */
+  .glow {
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foreground) 9%, transparent),
+      transparent
+    );
+  }
+  .dark .glow {
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--foreground) 16%, transparent),
+      transparent
+    );
+  }
+
+  /* Kartu dengan sorot yang mengikuti kursor */
+  .card-sorot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: radial-gradient(
+      260px circle at var(--x, 50%) var(--y, 50%),
+      color-mix(in srgb, var(--foreground) 10%, transparent),
+      transparent 70%
+    );
+  }
+  .card-sorot:hover::before {
+    opacity: 1;
+  }
+  .card-sorot > * {
+    position: relative;
   }
 }
