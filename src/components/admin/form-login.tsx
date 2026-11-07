@@ -3,22 +3,23 @@
 import { useActionState } from "react";
 import { login, type LoginState } from "@/actions/auth";
 
-const awal: LoginState = {};
-
 export function FormLogin() {
-  const [state, action, pending] = useActionState(login, awal);
+  const [state, action, pending] = useActionState(login, {} as LoginState);
 
   return (
     <form action={action} className="space-y-4">
       <div className="space-y-1.5">
-        <label htmlFor="email" className="text-sm font-medium">Email</label>
+        <label htmlFor="username" className="text-sm font-medium">Username</label>
         <input
-          id="email"
-          name="email"
-          type="email"
+          id="username"
+          name="username"
+          type="text"
           required
           autoComplete="username"
-          className="input"
+          autoCapitalize="none"
+          spellCheck={false}
+          defaultValue={state.username ?? ""}
+          className="input h-11"
         />
       </div>
 
@@ -30,17 +31,17 @@ export function FormLogin() {
           type="password"
           required
           autoComplete="current-password"
-          className="input"
+          className="input h-11"
         />
       </div>
 
       {state.error && (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
           {state.error}
         </p>
       )}
 
-      <button type="submit" disabled={pending} className="btn btn-primary w-full">
+      <button type="submit" disabled={pending} className="btn btn-primary btn-lg w-full">
         {pending ? "Memproses..." : "Masuk"}
       </button>
     </form>

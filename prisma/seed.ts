@@ -5,18 +5,24 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const username = process.env.ADMIN_USERNAME?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
-  if (!email || !password) {
-    throw new Error("Isi ADMIN_EMAIL dan ADMIN_PASSWORD di .env sebelum menjalankan seed.");
+  if (!username || !password) {
+    throw new Error("Isi ADMIN_USERNAME dan ADMIN_PASSWORD di .env sebelum menjalankan seed.");
+  }
+  if (!/^[a-z0-9._-]{3,30}$/.test(username)) {
+    throw new Error("ADMIN_USERNAME: 3-30 karakter (huruf kecil, angka, titik, strip, garis bawah).");
+  }
+  if (password.length < 8) {
+    throw new Error("ADMIN_PASSWORD minimal 8 karakter.");
   }
 
   // Akun admin (menjalankan seed lagi akan mereset password ke nilai di .env)
   const passwordHash = await bcrypt.hash(password, 12);
   await prisma.staff.upsert({
-    where: { email },
-    update: { passwordHash, aktif: true },
-    create: { nama: "Administrator", email, passwordHash },
+    where: { username },
+    update: { passwordHash, aktif: true, rol: "ADMIN" },
+    create: { nama: "Administrator", username, passwordHash, rol: "ADMIN" },
   });
 
   // Contoh ruangan (hanya jika tabel masih kosong)
@@ -63,7 +69,7 @@ async function main() {
     });
   }
 
-  console.log("Seed selesai. Login admin:", email);
+  console.log("Seed selesai. Login admin (username):", username);
 }
 
 main()

@@ -2,6 +2,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+  Tema monokrom 60/40.
+  Terang : latar putih (dominan), permukaan "ink" hitam sebagai pengimbang.
+  Gelap  : latar hitam (dominan), permukaan "ink" putih sebagai pengimbang.
+*/
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
@@ -12,6 +17,17 @@
   --primary: #0a0a0a;
   --primary-foreground: #fafafa;
   --ring: #0a0a0a;
+
+  --ink: #0a0a0a;
+  --ink-foreground: #fafafa;
+  --ink-muted: #a1a1aa;
+  --ink-border: #2a2a2e;
+
+  --logo-filter: none;
+  --logo-ink-filter: invert(1);
+  --glow: rgba(10, 10, 10, 0.08);
+  --grid: rgba(10, 10, 10, 0.075);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05), 0 10px 28px -14px rgba(0, 0, 0, 0.22);
 }
 
 .dark {
@@ -20,10 +36,21 @@
   --card: #111113;
   --muted: #18181b;
   --muted-foreground: #a1a1aa;
-  --border: #27272a;
+  --border: #26262a;
   --primary: #fafafa;
   --primary-foreground: #0a0a0a;
   --ring: #fafafa;
+
+  --ink: #fafafa;
+  --ink-foreground: #0a0a0a;
+  --ink-muted: #52525b;
+  --ink-border: #d4d4d8;
+
+  --logo-filter: invert(1);
+  --logo-ink-filter: none;
+  --glow: rgba(255, 255, 255, 0.11);
+  --grid: rgba(255, 255, 255, 0.075);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 28px -14px rgba(0, 0, 0, 0.9);
 }
 
 @theme inline {
@@ -36,6 +63,10 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-ring: var(--ring);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-border: var(--ink-border);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
@@ -43,7 +74,7 @@
 @theme {
   --animate-fade-up: fade-up 0.8s ease-out both;
   --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
-  --animate-trace: trace 8s linear infinite;
+  --animate-trace-zone: trace-zone 9s linear infinite;
 
   @keyframes fade-up {
     from {
@@ -66,17 +97,17 @@
     }
   }
 
-  @keyframes trace {
+  @keyframes trace-zone {
     from {
-      transform: translateX(-30vw);
+      transform: translateX(-100%);
       opacity: 0;
     }
-    10%,
-    90% {
+    15%,
+    85% {
       opacity: 1;
     }
     to {
-      transform: translateX(110vw);
+      transform: translateX(290%);
       opacity: 0;
     }
   }
@@ -106,46 +137,128 @@
 }
 
 @layer components {
+  /* ---------- Tombol, input, kartu ---------- */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50;
   }
   .btn-primary {
     @apply bg-primary text-primary-foreground hover:opacity-90;
   }
   .btn-outline {
-    @apply border border-border bg-transparent hover:bg-muted;
+    @apply border border-border bg-card hover:bg-muted;
+  }
+  .btn-lg {
+    @apply h-12 rounded-xl px-6 text-base font-semibold;
+  }
+  .btn-primary.btn-lg {
+    box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--foreground) 60%, transparent);
   }
   .input {
     @apply w-full rounded-lg border border-border bg-card px-3 py-2 text-sm placeholder:text-muted-foreground;
   }
   .card {
-    @apply rounded-xl border border-border bg-card;
+    @apply rounded-2xl border border-border bg-card;
+    box-shadow: var(--shadow-card);
   }
 
-  /* Latar grid ala papan sirkuit */
+  /* ---------- Permukaan kebalikan (hitam di terang, putih di gelap) ---------- */
+  .surface-ink {
+    background: var(--ink);
+    color: var(--ink-foreground);
+  }
+  .surface-ink .label-mono {
+    color: var(--ink-muted);
+  }
+  .logo-img {
+    filter: var(--logo-filter);
+    flex: none;
+  }
+  .surface-ink .logo-img {
+    filter: var(--logo-ink-filter);
+  }
+
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  /* ---------- Efek ---------- */
   .bg-grid {
     background-image:
-      linear-gradient(to right, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px),
-      linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 8%, transparent) 1px, transparent 1px);
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
     background-size: 44px 44px;
-    -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, #000 30%, transparent 78%);
-    mask-image: radial-gradient(ellipse 75% 70% at 50% 0%, #000 30%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 85% 95% at 72% 25%, #000 25%, transparent 78%);
+    mask-image: radial-gradient(ellipse 85% 95% at 72% 25%, #000 25%, transparent 78%);
+  }
+  .grid-ink {
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--ink-foreground) 7%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--ink-foreground) 7%, transparent) 1px, transparent 1px);
+    background-size: 32px 32px;
+    -webkit-mask-image: linear-gradient(#000, transparent 80%);
+    mask-image: linear-gradient(#000, transparent 80%);
+  }
+  .glow {
+    background: radial-gradient(closest-side, var(--glow), transparent);
+  }
+  .outline-text {
+    color: transparent;
+    -webkit-text-stroke: 1.6px var(--foreground);
   }
 
-  /* Bercak cahaya lembut */
-  .glow {
-    background: radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foreground) 9%, transparent),
-      transparent
-    );
+  /* Panel chip dengan kaki pin (meniru logo) */
+  .chip-wrap {
+    position: relative;
+    padding: 16px;
   }
-  .dark .glow {
-    background: radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--foreground) 16%, transparent),
-      transparent
-    );
+  .chip {
+    position: relative;
+    border-radius: 24px;
+    padding: 14px;
+    box-shadow: 0 40px 70px -34px color-mix(in srgb, var(--foreground) 70%, transparent);
+  }
+  .chip-die {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1.5px solid color-mix(in srgb, var(--ink-foreground) 80%, transparent);
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--ink-foreground) 7%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--ink-foreground) 7%, transparent) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .chip-pin {
+    position: absolute;
+    pointer-events: none;
+  }
+  .chip-pin.x {
+    left: 48px;
+    right: 48px;
+    height: 16px;
+    background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 24px);
+  }
+  .chip-pin.y {
+    top: 48px;
+    bottom: 48px;
+    width: 16px;
+    background: repeating-linear-gradient(to bottom, var(--ink) 0 7px, transparent 7px 24px);
+  }
+  .chip-pin.t {
+    top: 0;
+  }
+  .chip-pin.b {
+    bottom: 0;
+  }
+  .chip-pin.l {
+    left: 0;
+  }
+  .chip-pin.r {
+    right: 0;
   }
 
   /* Kartu dengan sorot yang mengikuti kursor */
@@ -158,7 +271,14 @@
     transition: opacity 0.3s;
     background: radial-gradient(
       260px circle at var(--x, 50%) var(--y, 50%),
-      color-mix(in srgb, var(--foreground) 10%, transparent),
+      color-mix(in srgb, var(--foreground) 9%, transparent),
+      transparent 70%
+    );
+  }
+  .card-sorot.surface-ink::before {
+    background: radial-gradient(
+      260px circle at var(--x, 50%) var(--y, 50%),
+      color-mix(in srgb, var(--ink-foreground) 14%, transparent),
       transparent 70%
     );
   }
@@ -167,5 +287,36 @@
   }
   .card-sorot > * {
     position: relative;
+  }
+
+  /* ---------- Status (tanpa warna: dibedakan lewat bentuk) ---------- */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    border-radius: 9999px;
+    border: 1px solid var(--foreground);
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pill-wait {
+    border-style: dashed;
+  }
+  .pill-ok {
+    background: var(--foreground);
+    color: var(--background);
+  }
+  .pill-no {
+    color: var(--muted-foreground);
+    border-color: var(--border);
+    text-decoration: line-through;
+  }
+  .pill-done {
+    background: var(--muted);
+    border-color: var(--border);
+    color: var(--muted-foreground);
   }
 }

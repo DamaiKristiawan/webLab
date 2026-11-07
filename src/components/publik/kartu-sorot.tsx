@@ -7,10 +7,12 @@ export function KartuSorot({
   href,
   children,
   className,
+  featured,
 }: {
   href: string;
   children: React.ReactNode;
   className?: string;
+  featured?: boolean;
 }) {
   function gerak(e: React.MouseEvent<HTMLAnchorElement>) {
     const r = e.currentTarget.getBoundingClientRect();
@@ -23,7 +25,8 @@ export function KartuSorot({
       href={href}
       onMouseMove={gerak}
       className={cn(
-        "card card-sorot group relative block overflow-hidden p-5 transition-transform duration-300 hover:-translate-y-1 hover:border-foreground/30",
+        "card card-sorot group relative block overflow-hidden p-6 transition-transform duration-300 hover:-translate-y-1",
+        featured && "surface-ink border-ink",
         className,
       )}
     >

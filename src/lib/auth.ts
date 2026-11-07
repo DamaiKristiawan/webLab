@@ -34,7 +34,7 @@ export async function hapusSesi() {
   store.delete(NAMA_COOKIE);
 }
 
-/** Mengembalikan data staf yang sedang login, atau null. */
+/** Staf yang sedang login (akun harus aktif), atau null. Peran dibaca dari database, bukan dari cookie. */
 export async function ambilStaff() {
   const store = await cookies();
   const token = store.get(NAMA_COOKIE)?.value;
@@ -47,7 +47,7 @@ export async function ambilStaff() {
 
     const staff = await prisma.staff.findUnique({
       where: { id },
-      select: { id: true, nama: true, email: true, aktif: true },
+      select: { id: true, nama: true, username: true, rol: true, aktif: true },
     });
     if (!staff || !staff.aktif) return null;
     return staff;
@@ -56,9 +56,22 @@ export async function ambilStaff() {
   }
 }
 
-/** Dipakai di halaman dan server action admin: arahkan ke login jika belum masuk. */
-export async function wajibLogin() {
+/** Halaman dan aksi untuk SEMUA staf (admin dan asisten). */
+export async function wajibStaf() {
   const staff = await ambilStaff();
   if (!staff) redirect("/admin/login");
   return staff;
 }
+
+/** Halaman dan aksi khusus ADMIN. Asisten diarahkan ke menu praktikum. */
+export async function wajibAdmin() {
+  const staff = await wajibStaf();
+  if (staff.rol !== "ADMIN") redirect("/admin/praktikum");
+  return staff;
+}
+
+/**
+ * Nama lama. Sekarang sama dengan wajibAdmin, sehingga halaman jadwal dan
+ * pengumuman yang sudah ada otomatis menjadi khusus admin tanpa mengubah filenya.
+ */
+export const wajibLogin = wajibAdmin;

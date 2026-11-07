@@ -18,6 +18,7 @@ const fmtTanggal = new Intl.DateTimeFormat("id-ID", {
   timeZone: "Asia/Jakarta",
 });
 
+// Dipakai di dalam panel chip (permukaan "ink"), jadi warna mengikuti permukaan itu.
 export function JamWib() {
   const [sekarang, setSekarang] = useState<Date | null>(null);
 
@@ -34,17 +35,15 @@ export function JamWib() {
   const [jam, menit, detik] = sekarang ? fmtJam.format(sekarang).split(".") : ["--", "--", "--"];
 
   return (
-    <div className="card p-6">
-      <p className="text-sm text-muted-foreground">
-        {sekarang ? fmtTanggal.format(sekarang) : "\u00a0"}
-      </p>
-      <p className="mt-2 flex items-baseline font-bold leading-none tabular-nums">
-        <span className="text-6xl sm:text-7xl">
+    <div>
+      <p className="label-mono">{sekarang ? fmtTanggal.format(sekarang) : "\u00a0"}</p>
+      <p className="my-2 flex items-baseline font-extrabold leading-none tracking-tighter tabular-nums">
+        <span className="text-5xl sm:text-6xl lg:text-7xl">
           {jam}:{menit}
         </span>
-        <span className="ml-1 text-2xl text-muted-foreground">:{detik}</span>
+        <span className="ml-1 text-2xl font-semibold text-ink-muted">:{detik}</span>
       </p>
-      <p className="mt-3 text-sm text-muted-foreground">Waktu Indonesia Barat</p>
+      <p className="label-mono">Waktu Indonesia Barat</p>
     </div>
   );
 }

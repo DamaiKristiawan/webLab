@@ -5,21 +5,28 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { buatSesi, hapusSesi } from "@/lib/auth";
 
-export type LoginState = { error?: string };
+export type LoginState = { error?: string; username?: string };
+
+// Hash palsu agar waktu respons sama, baik username ada maupun tidak.
+const HASH_PALSU = bcrypt.hashSync("tidak-dipakai", 10);
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const username = String(formData.get("username") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
 
-  if (!email || !password) return { error: "Email dan password wajib diisi." };
+  if (!username || !password) {
+    return { error: "Username dan password wajib diisi.", username };
+  }
 
-  const staff = await prisma.staff.findUnique({ where: { email } });
-  const cocok = staff && staff.aktif ? await bcrypt.compare(password, staff.passwordHash) : false;
+  const staff = await prisma.staff.findUnique({ where: { username } });
+  const cocok = await bcrypt.compare(password, staff?.passwordHash ?? HASH_PALSU);
 
-  if (!staff || !cocok) return { error: "Email atau password salah." };
+  if (!staff || !staff.aktif || !cocok) {
+    return { error: "Username atau password salah.", username };
+  }
 
   await buatSesi(staff.id);
-  redirect("/admin");
+  redirect(staff.rol === "ADMIN" ? "/admin" : "/admin/praktikum");
 }
 
 export async function logout() {

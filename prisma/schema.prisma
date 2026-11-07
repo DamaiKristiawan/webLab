@@ -9,8 +9,14 @@ datasource db {
 
 // ============ ENUM ============
 
+enum RolStaff {
+  ADMIN
+  ASISTEN
+}
+
 enum JabatanLab {
   KEPALA_LAB
+  DOSEN
   PLP
   ASISTEN
 }
@@ -45,25 +51,31 @@ enum TipePertanyaan {
   TEKS
 }
 
-// ============ AKUN STAF (kalab, PLP, asisten: hak akses sama) ============
+// ============ AKUN STAF ============
+// ADMIN: kuasa penuh. ASISTEN: hanya praktikum (modul, pretest, postest, hasil tes).
 
 model Staff {
   id           Int         @id @default(autoincrement())
   nama         String
-  email        String      @unique
+  username     String      @unique
+  email        String?
   passwordHash String
+  rol          RolStaff    @default(ASISTEN)
   aktif        Boolean     @default(true)
   createdAt    DateTime    @default(now())
   pengajuan    Pengajuan[]
+  anggota      AnggotaLab?
 }
 
 // ============ INFORMASI LAB ============
 
-// Data tampilan di halaman Struktur (terpisah dari akun login)
+// Data tampilan di halaman Struktur (terpisah dari akun login, boleh ditautkan)
 model AnggotaLab {
   id        Int        @id @default(autoincrement())
   nama      String
   jabatan   JabatanLab
+  label     String? // teks jabatan yang tampil, mis. "Asisten Praktikum"
+  angkatan  Int?
   nipNpm    String?
   email     String?
   kontak    String?
@@ -71,6 +83,8 @@ model AnggotaLab {
   fotoUrl   String?
   urutan    Int        @default(0)
   aktif     Boolean    @default(true)
+  staffId   Int?       @unique
+  staff     Staff?     @relation(fields: [staffId], references: [id], onDelete: SetNull)
 }
 
 // Pengaturan teks umum: visi, misi, sejarah, alamat, kontak, dll.
@@ -307,16 +321,16 @@ model JawabanSurvei {
 // ============ DOKUMENTASI / KEGIATAN ============
 
 model Dokumentasi {
-  id        Int              @id @default(autoincrement())
+  id        Int               @id @default(autoincrement())
   judul     String
-  slug      String           @unique
+  slug      String            @unique
   ringkasan String?
-  isi       String?          @db.Text
+  isi       String?           @db.Text
   coverUrl  String?
-  tanggal   DateTime         @default(now())
-  terbit    Boolean          @default(true)
+  tanggal   DateTime          @default(now())
+  terbit    Boolean           @default(true)
   foto      DokumentasiFoto[]
-  createdAt DateTime         @default(now())
+  createdAt DateTime          @default(now())
 }
 
 model DokumentasiFoto {

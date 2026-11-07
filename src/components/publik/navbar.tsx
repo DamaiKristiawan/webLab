@@ -36,8 +36,8 @@ const daftarMenu: ItemMenu[] = [
 ];
 
 const kelasTautan =
-  "inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
-const kelasAktif = "bg-muted text-foreground";
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
+const kelasAktif = "bg-foreground font-semibold text-background hover:bg-foreground hover:text-background";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -49,7 +49,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
+      <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-4 px-4">
         <Link href="/" onClick={tutup} className="flex items-center gap-3">
           <Image
             src="/logo-ltd.png"
@@ -57,7 +57,7 @@ export function Navbar() {
             width={40}
             height={40}
             priority
-            className="h-10 w-10 dark:invert"
+            className="logo-img h-10 w-10"
           />
           <span className="leading-tight">
             <span className="block text-sm font-semibold">Lab Teknik Digital</span>
@@ -66,7 +66,7 @@ export function Navbar() {
         </Link>
 
         {/* Menu desktop */}
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Menu utama">
+        <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Menu utama">
           {daftarMenu.map((m) =>
             m.children ? (
               <div key={m.label} className="group relative">
@@ -86,7 +86,7 @@ export function Navbar() {
                         href={c.href}
                         className={cn(
                           "block rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground",
-                          aktif(c.href) && kelasAktif,
+                          aktif(c.href) && "bg-muted font-semibold text-foreground",
                         )}
                       >
                         {c.label}
@@ -114,7 +114,7 @@ export function Navbar() {
             onClick={() => setTerbuka((v) => !v)}
             aria-label={terbuka ? "Tutup menu" : "Buka menu"}
             aria-expanded={terbuka}
-            className="btn btn-outline h-9 w-9 px-0 lg:hidden"
+            className="btn btn-outline h-10 w-10 px-0 xl:hidden"
           >
             {terbuka ? <X className="h-4 w-4" /> : <IkonMenu className="h-4 w-4" />}
           </button>
@@ -123,14 +123,15 @@ export function Navbar() {
 
       {/* Menu mobile */}
       {terbuka && (
-        <nav className="border-t border-border bg-background lg:hidden" aria-label="Menu seluler">
+        <nav
+          className="max-h-[calc(100vh-68px)] overflow-y-auto border-t border-border bg-background xl:hidden"
+          aria-label="Menu seluler"
+        >
           <div className="mx-auto max-w-6xl space-y-1 px-4 py-3">
             {daftarMenu.map((m) =>
               m.children ? (
                 <div key={m.label} className="pb-1">
-                  <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {m.label}
-                  </p>
+                  <p className="label-mono px-3 py-2">{m.label}</p>
                   {m.children.map((c) => (
                     <Link
                       key={c.href}
