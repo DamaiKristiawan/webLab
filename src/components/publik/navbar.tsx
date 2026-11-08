@@ -4,30 +4,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import {
-  Building2,
-  CalendarDays,
-  ChevronDown,
-  ClipboardList,
-  House,
-  LayoutGrid,
-  LogIn,
-  Menu as IkonMenu,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { ChevronDown, LogIn, Menu as IkonMenu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CariHalaman } from "./cari-halaman";
 import { ThemeToggle } from "./theme-toggle";
 
 type Tautan = { label: string; href: string };
-type ItemMenu = { label: string; ikon: LucideIcon; href?: string; children?: Tautan[] };
+type ItemMenu = { label: string; href?: string; children?: Tautan[] };
 
 const daftarMenu: ItemMenu[] = [
-  { label: "Beranda", ikon: House, href: "/" },
+  { label: "Beranda", href: "/" },
   {
     label: "Jadwal",
-    ikon: CalendarDays,
     children: [
       { label: "Jadwal Kegiatan", href: "/jadwal" },
       { label: "Jadwal Piket", href: "/jadwal/piket" },
@@ -35,7 +23,6 @@ const daftarMenu: ItemMenu[] = [
   },
   {
     label: "Informasi",
-    ikon: Building2,
     children: [
       { label: "Profil Lab", href: "/informasi/profil" },
       { label: "Struktur Organisasi", href: "/informasi/struktur" },
@@ -43,7 +30,6 @@ const daftarMenu: ItemMenu[] = [
   },
   {
     label: "Pengajuan",
-    ikon: ClipboardList,
     children: [
       { label: "Peminjaman Alat", href: "/pengajuan/alat" },
       { label: "Peminjaman Ruangan", href: "/pengajuan/ruangan" },
@@ -53,7 +39,6 @@ const daftarMenu: ItemMenu[] = [
   },
   {
     label: "Lainnya",
-    ikon: LayoutGrid,
     children: [
       { label: "Praktikum", href: "/praktikum" },
       { label: "Survei Kepuasan", href: "/survei" },
@@ -63,7 +48,7 @@ const daftarMenu: ItemMenu[] = [
 ];
 
 const kelasTautan =
-  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground";
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground";
 const kelasAktif =
   "bg-primary font-semibold text-primary-foreground hover:bg-primary hover:text-primary-foreground";
 
@@ -103,16 +88,14 @@ export function Navbar() {
 
         {/* Menu desktop */}
         <nav className="hidden items-center gap-1 xl:flex" aria-label="Menu utama">
-          {daftarMenu.map((m) => {
-            const Ikon = m.ikon;
-            return m.children ? (
+          {daftarMenu.map((m) =>
+            m.children ? (
               <div key={m.label} className="group relative">
                 <button
                   type="button"
                   className={cn(kelasTautan, anakAktif(m) && kelasAktif)}
                   aria-haspopup="menu"
                 >
-                  <Ikon className="h-4 w-4" />
                   {m.label}
                   <ChevronDown className="h-4 w-4" />
                 </button>
@@ -139,11 +122,10 @@ export function Navbar() {
                 href={m.href!}
                 className={cn(kelasTautan, aktif(m.href!) && kelasAktif)}
               >
-                <Ikon className="h-4 w-4" />
                 {m.label}
               </Link>
-            );
-          })}
+            ),
+          )}
         </nav>
 
         <div className="flex items-center gap-2">

@@ -1,313 +1,221 @@
-# Web Laboratorium Teknik Digital - Universitas Lampung
+# Web Laboratorium Teknik Digital — Universitas Lampung
 
-Website informatif dan layanan untuk Laboratorium Teknik Digital, Fakultas Teknik, Universitas Lampung. Pengunjung dapat melihat jadwal praktikum dan seminar, profil dan struktur lab, serta mengajukan peminjaman alat, ruangan, dan penelitian tanpa perlu login. Staf (asisten dan admin) mengelola konten lewat panel admin.
-
-## Daftar Isi
-
-1. [Pengguna dan Hak Akses](#pengguna-dan-hak-akses)
-2. [Fitur](#fitur)
-3. [Alur Kerja Sistem](#alur-kerja-sistem)
-4. [Keterbatasan Sistem](#keterbatasan-sistem)
-5. [Teknologi](#teknologi)
-6. [Struktur Data](#struktur-data)
-7. [Struktur Folder](#struktur-folder)
-8. [Menjalankan Secara Lokal](#menjalankan-secara-lokal)
-9. [Variabel Lingkungan](#variabel-lingkungan)
-10. [Deploy](#deploy)
-11. [Status Pengembangan](#status-pengembangan)
-
----
-
-## Pengguna dan Hak Akses
-
-Ada tiga jenis pengguna. Hanya asisten dan admin yang memiliki akun dan perlu login.
-
-| Pengguna | Login | Hak akses |
-|---|---|---|
-| **Pengguna** (mahasiswa, dosen, pengunjung) | Tidak perlu | Melihat semua informasi lab, mengajukan peminjaman alat, ruangan, dan penelitian, mengecek status pengajuan, mengerjakan pretest dan postest, mengisi survei kepuasan |
-| **Asisten** | Ya | Mengelola **praktikum saja**: modul, soal pretest, soal postest, dan melihat hasil tes. Tidak bisa membuka menu lain di panel admin. |
-| **Admin** | Ya | **Kuasa penuh** atas seluruh sistem: semua yang bisa dilakukan asisten, ditambah jadwal, pengajuan, inventaris, anggota lab, pengumuman, survei, dokumentasi, pengaturan, dan akun staf |
-
-### Matriks akses panel admin
-
-| Menu | Admin | Asisten |
-|---|:---:|:---:|
-| Dashboard | ✅ | ✅ (ringkasan praktikum) |
-| Praktikum (modul, pretest, postest) | ✅ | ✅ |
-| Hasil tes | ✅ | ✅ |
-| Jadwal | ✅ | ❌ |
-| Pengajuan (setujui/tolak) | ✅ | ❌ |
-| Inventaris (alat dan ruangan) | ✅ | ❌ |
-| Anggota lab | ✅ | ❌ |
-| Pengumuman | ✅ | ❌ |
-| Survei | ✅ | ❌ |
-| Dokumentasi | ✅ | ❌ |
-| Pengaturan (visi, misi, kontak) | ✅ | ❌ |
-| Akun staf | ✅ | ❌ |
-
-> Hasil tes dimasukkan ke akses asisten karena merupakan bagian dari pretest dan postest. Jika ingin dibatasi hanya untuk admin, ubah di satu tempat (daftar menu per peran).
-
-Penegakan hak akses dilakukan **di server** pada setiap halaman dan aksi (`wajibAdmin()` dan `wajibStaf()`), bukan hanya dengan menyembunyikan menu.
-
----
+Situs informasi dan layanan Laboratorium Teknik Digital, Fakultas Teknik, Universitas Lampung.
+Pengunjung bisa melihat jadwal, mengajukan peminjaman alat/ruangan/penelitian **tanpa login**, mengerjakan
+pretest dan postest praktikum, mengisi survei, dan melihat dokumentasi kegiatan. Staf (admin dan asisten)
+mengelola semuanya lewat panel admin.
 
 ## Fitur
 
-### Untuk pengguna (publik)
+**Publik (tanpa login)**
+- Beranda: hero, statistik lab, akses cepat, pengumuman, tentang lab, agenda mendatang, kegiatan terbaru, piket hari ini
+- Jadwal kegiatan (praktikum dan seminar) dan jadwal piket (Senin sampai Jumat)
+- Profil lab dan struktur organisasi (kepala lab, dosen, PLP, asisten)
+- Pengajuan peminjaman alat, ruangan, dan penelitian, dengan kode pelacakan, unggah bukti atau tautan Drive, dan cek status
+- Praktikum: modul, pretest, dan postest per judul
+- Survei kepuasan anonim
+- Dokumentasi kegiatan (galeri foto)
+- Pencarian halaman, mode terang dan gelap
 
-- **Beranda:** jam WIB, kegiatan berikutnya, agenda hari ini (otomatis dari data jadwal), pengumuman, kegiatan terbaru, pintasan layanan
-- **Jadwal:** praktikum dan seminar per bulan, filter jenis dan ruangan, dikelompokkan per hari
-- **Informasi lab:** profil (visi, misi, sejarah, fasilitas) dan struktur (kepala lab, PLP, asisten)
-- **Pengajuan tanpa login:**
-  - Peminjaman **alat** (pilih alat dan jumlah, tanggal pinjam dan kembali)
-  - Peminjaman **ruangan** (ruangan, tanggal, jam mulai dan selesai)
-  - **Penelitian** (judul, dosen pembimbing, abstrak, dapat sekaligus meminjam alat)
-  - Bukti dokumen: unggah file (PDF/foto) atau tautan Google Drive
-  - **Kode pengajuan** otomatis untuk **cek status** kapan saja
-- **Praktikum:** daftar praktikum, unduh modul, kerjakan **pretest** dan **postest** (nilai otomatis, pilihan ganda)
-- **Survei kepuasan anonim:** tanpa login dan tanpa menyimpan identitas
-- **Dokumentasi:** galeri dan artikel kegiatan lab
-- **Tema terang/gelap**, responsif untuk ponsel
+**Panel admin** (`/admin`)
+- Dashboard, jadwal, pengumuman, inventaris (alat dan ruangan), anggota lab, jadwal piket, pengaturan profil lab
+- Pengajuan: setujui, tolak, selesaikan, batalkan, dengan pemeriksaan bentrok jadwal dan stok alat
+- Praktikum, soal, kode akses tes, hasil tes, ekspor CSV
+- Survei dan dokumentasi, manajemen akun staf
 
-### Untuk asisten
+## Peran
 
-- Kelola praktikum: tambah, ubah, dan hapus praktikum
-- Unggah dan kelola **modul** per praktikum
-- Susun **soal pretest dan postest** per modul (pilihan ganda, kunci jawaban, durasi)
-- Lihat dan rekap **hasil tes** peserta
+| Peran | Hak akses |
+|---|---|
+| **Pengguna** | Publik, tanpa akun |
+| **Asisten** | Login dengan akun sendiri. Hanya bagian praktikum: judul, pretest, postest, soal, kode akses, hasil tes |
+| **Admin** | Kuasa penuh atas semua menu |
 
-### Untuk admin
-
-Semua fitur asisten, ditambah:
-
-- **Jadwal:** tambah, ubah, hapus, dengan **peringatan bentrok ruangan**
-- **Pengajuan:** tinjau, setujui atau tolak dengan catatan, ubah status, cek bentrok jadwal dan ketersediaan stok alat
-- **Inventaris:** kelola alat (stok, kondisi) dan ruangan
-- **Anggota lab:** kelola kepala lab, PLP, dan asisten yang tampil di halaman Struktur
-- **Pengumuman:** periode tayang, aktif/nonaktif
-- **Survei:** kelola pertanyaan dan lihat rekap jawaban
-- **Dokumentasi:** unggah foto dan tulis artikel kegiatan
-- **Pengaturan:** visi, misi, sejarah, alamat, kontak, jam layanan
-- **Akun staf:** tambah akun asisten atau admin, nonaktifkan akun, atur ulang password
-
----
-
-## Alur Kerja Sistem
-
-### 1. Gambaran umum
-
-```mermaid
-flowchart LR
-    P["Pengguna (tanpa login)"] --> W["Website publik"]
-    A["Asisten (login)"] --> PA["Panel admin: menu praktikum"]
-    D["Admin (login)"] --> PB["Panel admin: semua menu"]
-    W --> DB[("PostgreSQL")]
-    PA --> DB
-    PB --> DB
-    W -. "unggah bukti" .-> F[("Penyimpanan file")]
-    PA -. "unggah modul" .-> F
-    PB -. "unggah foto dan modul" .-> F
-```
-
-### 2. Alur pengajuan (alat, ruangan, penelitian)
-
-```mermaid
-flowchart TD
-    A["Pengguna membuka form pengajuan"] --> B["Isi data diri, kegiatan, waktu, bukti dokumen"]
-    B --> C{"Validasi dan anti-spam lolos?"}
-    C -- Tidak --> B
-    C -- Ya --> D["Sistem menyimpan, status MENUNGGU, membuat kode pengajuan"]
-    D --> E["Pengguna menyimpan kode untuk cek status"]
-    D --> F["Admin meninjau di panel"]
-    F --> G{"Keputusan"}
-    G -- Setujui --> H["Status DISETUJUI"]
-    G -- Tolak --> I["Status DITOLAK, wajib catatan"]
-    H --> J["Kegiatan berjalan"]
-    J --> K["Status SELESAI"]
-    E --> L["Pengguna cek status di halaman Cek Status"]
-```
-
-Status pengajuan: `MENUNGGU` → `DISETUJUI` / `DITOLAK` → `SELESAI`. Pemohon juga dapat berstatus `DIBATALKAN`.
-
-### 3. Alur praktikum, pretest, dan postest
-
-```mermaid
-flowchart TD
-    A["Asisten membuat praktikum"] --> B["Mengunggah modul"]
-    B --> C["Menyusun soal pretest dan postest"]
-    C --> D["Praktikum tampil di halaman publik"]
-    D --> E["Pengguna membaca modul"]
-    E --> F["Mengerjakan pretest (isi nama dan NPM)"]
-    F --> G["Praktikum berlangsung"]
-    G --> H["Mengerjakan postest"]
-    H --> I["Skor dihitung otomatis dan disimpan"]
-    I --> J["Asisten dan admin melihat rekap hasil tes"]
-```
-
-### 4. Alur login dan pembatasan akses staf
-
-```mermaid
-flowchart TD
-    A["Staf membuka /admin"] --> B{"Sudah login?"}
-    B -- Tidak --> C["Halaman login"]
-    C --> D{"Email dan password benar, akun aktif?"}
-    D -- Tidak --> C
-    D -- Ya --> E["Sesi dibuat (cookie httpOnly, 7 hari)"]
-    B -- Ya --> F{"Peran"}
-    E --> F
-    F -- Admin --> G["Semua menu"]
-    F -- Asisten --> H["Hanya menu praktikum dan hasil tes"]
-    H -. "membuka menu lain" .-> I["Diarahkan kembali / ditolak"]
-```
-
-### 5. Alur informasi harian
-
-Beranda dan halaman jadwal membaca tabel `Jadwal` langsung. Saat admin menambahkan jadwal, kegiatan otomatis muncul di **Agenda Hari Ini** pada tanggal tersebut (batas hari dihitung menurut WIB), dan penanda **Berlangsung** muncul selama kegiatan berjalan.
-
----
-
-## Keterbatasan Sistem
-
-**Identitas pengguna tidak diverifikasi.** Karena pengajuan, pretest, dan postest tanpa login, nama dan NPM yang diisi tidak bisa dipastikan benar. Admin perlu memeriksa bukti dokumen sebelum menyetujui.
-
-**Risiko spam.** Form publik dilindungi anti-spam (captcha dan pembatasan jumlah kiriman), tetapi tidak bisa sepenuhnya menutup penyalahgunaan.
-
-**Hasil tes bukan ujian terawasi.** Peserta dapat mengerjakan berulang kali, mengisi NPM orang lain, atau membuka sumber lain. Nilai sebaiknya diperlakukan sebagai latihan, bukan penilaian resmi.
-
-**Peran hanya dua untuk staf.** Admin dan asisten saja. Tidak ada peran terpisah untuk kepala lab atau PLP. Jabatan itu hanya tampil di halaman Struktur sebagai data, dan siapa pun yang memegang jabatan itu diberi akun admin atau asisten sesuai kebutuhan.
-
-**Asisten tidak dibatasi per praktikum.** Asisten dapat mengelola semua praktikum, bukan hanya yang ia ampu.
-
-**Tidak ada pendaftaran akun mandiri dan pemulihan password otomatis.** Akun staf dibuat oleh admin, dan password yang lupa direset oleh admin.
-
-**Pemeriksaan bentrok terbatas.** Bentrok ruangan dicek terhadap data jadwal, dan stok alat terhadap pengajuan yang sudah disetujui. Pemakaian di luar sistem tidak terdeteksi.
-
-**Notifikasi.** Tidak ada email atau pesan otomatis ke pemohon. Pemohon harus mengecek status sendiri dengan kode pengajuan. Notifikasi ke admin (email atau Telegram) bersifat opsional dan belum termasuk.
-
-**Penyimpanan file terbatas.** Ukuran dan jenis file bukti dibatasi (PDF dan gambar). File besar disarankan lewat tautan Google Drive.
-
-**Satu laboratorium.** Sistem dirancang untuk satu lab, bukan multi-lab.
-
-**Di luar lingkup saat ini:** presensi (termasuk presensi wajah), kas, pameran, pembayaran, dan integrasi SSO kampus.
-
-**Zona waktu.** Semua waktu ditampilkan dan diinput dalam WIB (UTC+7). Database menyimpan UTC.
-
----
+Login memakai **username dan password** (bukan email).
 
 ## Teknologi
 
-| Lapisan | Pilihan |
-|---|---|
-| Framework | Next.js 16 (App Router, Cache Components) |
-| UI | React, Tailwind CSS v4, lucide-react |
-| Backend | Server Actions dan Route Handlers Next.js |
-| Database | PostgreSQL |
-| ORM | Prisma 6 |
-| Autentikasi | Sesi cookie JWT (`jose`) dan `bcryptjs` |
-| Validasi | Zod |
-| Deploy | Server kampus (Docker/PM2 + Nginx) atau Vercel + Neon |
+Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind CSS v4 · Prisma 6 · PostgreSQL ·
+Zod · jose dan bcryptjs (sesi cookie JWT) · lucide-react
 
----
+## Prasyarat
 
-## Struktur Data
+- Node.js 20.9 atau lebih baru (disarankan versi LTS terbaru)
+- PostgreSQL 14 atau lebih baru
+- Git
 
-Tabel utama (lihat `prisma/schema.prisma`):
+## Memasang di komputer sendiri
 
-- **Staff:** akun login dengan peran `ADMIN` atau `ASISTEN`
-- **AnggotaLab:** data tampilan halaman Struktur (terpisah dari akun login)
-- **Pengaturan, Pengumuman**
-- **Ruangan, Alat:** inventaris
-- **Jadwal:** praktikum, seminar, dan kegiatan lain
-- **Pengajuan** dan **PengajuanAlat:** satu tabel untuk tiga jenis pengajuan
-- **Praktikum, Modul, Tes, Soal, HasilTes**
-- **Survei, PertanyaanSurvei, ResponSurvei, JawabanSurvei:** survei anonim
-- **Dokumentasi, DokumentasiFoto**
-
----
-
-## Struktur Folder
-
-```
-src/
-├── app/
-│   ├── (publik)/        # halaman publik (beranda, jadwal, pengajuan, praktikum, ...)
-│   ├── admin/
-│   │   ├── login/
-│   │   └── (panel)/     # panel admin (dilindungi login dan peran)
-│   └── api/upload/      # unggah file
-├── components/          # ui, publik, admin
-├── actions/             # Server Actions per fitur
-└── lib/                 # prisma, auth, waktu, storage, validasi, kode
-prisma/
-├── schema.prisma
-└── seed.ts
-```
-
----
-
-## Menjalankan Secara Lokal
-
-Prasyarat: Node.js 20+, PostgreSQL.
+> Jalankan semua perintah di folder yang berisi `package.json`. Kalau proyek ada di dalam folder
+> bertingkat (mis. `lab-td/lab-td`), masuk ke folder yang **dalam**.
 
 ```bash
-# 1. pasang dependensi
+# 1. Ambil kode dan pasang dependensi
+git clone https://github.com/DamaiKristiawan/webLab.git
+cd webLab
 npm install
 
-# 2. salin dan isi variabel lingkungan
-cp .env.example .env
+# 2. Salin berkas lingkungan, lalu isi nilainya (lihat tabel di bawah)
+cp .env.example .env          # Windows (cmd): copy .env.example .env
 
-# 3. buat database (sekali saja)
-psql -U postgres -c "CREATE DATABASE lab_td;"
+# 3. Buat database kosong di PostgreSQL, mis. bernama lab_td
+#    (lewat pgAdmin, DBeaver, atau: createdb lab_td)
 
-# 4. migrasi dan data awal
-npx prisma migrate dev
+# 4. Terapkan skema database dan buat Prisma Client
+npx prisma migrate deploy
+npx prisma generate
+
+# 5. Isi data awal (akun admin, praktikum, contoh ruangan dan alat, pengaturan)
 npx tsx prisma/seed.ts
 
-# 5. jalankan
+# 6. Jalankan
 npm run dev
 ```
 
-Buka `http://localhost:3000`. Panel admin ada di `/admin`.
+Buka <http://localhost:3000>. Panel admin: <http://localhost:3000/admin/login>.
 
----
+Saat mengembangkan dan mengubah `prisma/schema.prisma`, pakai `npx prisma migrate dev --name nama-perubahan`
+sebagai ganti `migrate deploy`.
 
-## Variabel Lingkungan
+### Variabel lingkungan (`.env`)
 
-| Variabel | Fungsi |
-|---|---|
-| `DATABASE_URL` | Koneksi PostgreSQL |
-| `AUTH_SECRET` | Kunci penanda sesi (string acak, minimal 32 karakter) |
-| `ADMIN_EMAIL` | Email akun admin pertama (dipakai seed) |
-| `ADMIN_PASSWORD` | Password admin pertama (dipakai seed) |
-
-Jangan pernah meng-commit file `.env`. Gunakan `.env.example` sebagai contoh.
-
----
-
-## Deploy
-
-Target: subdomain di `eng.unila.ac.id`.
-
-- **Server kampus:** jalankan Next.js dengan Docker atau PM2 di belakang Nginx, PostgreSQL di server yang sama, file upload di disk, HTTPS lewat Let's Encrypt.
-- **Cloud:** Vercel untuk aplikasi dan Neon/Supabase untuk database, subdomain diarahkan lewat record CNAME dari admin DNS fakultas.
-
-Sebelum produksi: ganti `AUTH_SECRET` dan password admin, pastikan `npm run build` bersih, dan atur cadangan database berkala.
-
----
-
-## Status Pengembangan
-
-| Tahap | Isi | Status |
+| Variabel | Wajib | Keterangan |
 |---|---|---|
-| 1 | Skema database dan struktur folder | ✅ Selesai |
-| 2 | Tema, layout publik, login staf, beranda | ✅ Selesai |
-| 3 | Jadwal (publik dan admin), pengumuman | ✅ Selesai |
-| 4 | Peran staf, inventaris, anggota lab, profil, struktur, pengaturan | 🔄 Berikutnya |
-| 5 | Pengajuan (alat, ruangan, penelitian), cek status, persetujuan | ⏳ Direncanakan |
-| 6 | Praktikum: modul, pretest, postest, hasil tes | ⏳ Direncanakan |
-| 7 | Survei anonim dan dokumentasi | ⏳ Direncanakan |
-| 8 | Akun staf, perapian, build bersih, deploy | ⏳ Direncanakan |
+| `DATABASE_URL` | ya | Alamat PostgreSQL, mis. `postgresql://user:password@localhost:5432/lab_td` |
+| `AUTH_SECRET` | ya | Kunci rahasia sesi login, minimal 32 karakter acak. Buat dengan `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| `ADMIN_USERNAME` | ya | Username admin pertama yang dibuat seed |
+| `ADMIN_PASSWORD` | ya | Password admin pertama. **Ganti di server produksi** |
+| `UPLOAD_DIR` | tidak | Folder penyimpanan berkas unggahan. Bawaan: `uploads/` di folder proyek |
 
----
+`.env` **tidak boleh** di-commit ke Git (sudah ada di `.gitignore`). Jangan menaruh password asli di `.env.example`.
 
-© Laboratorium Teknik Digital, Universitas Lampung.
+### Data awal dari seed
+
+Menjalankan `npx tsx prisma/seed.ts` membuat:
+- Akun admin dari `ADMIN_USERNAME` dan `ADMIN_PASSWORD`
+- Praktikum **Teknik Digital** dan **Sistem Operasi**, masing-masing dengan 6 judul
+- Contoh ruangan, alat, dan teks pengaturan lab
+
+Menjalankan seed lagi **mengembalikan password admin** ke nilai di `.env`. Itu cara termudah kalau lupa password admin.
+
+## Setelah pertama kali login
+
+1. **Pengaturan**: isi visi, misi, sejarah, alamat, email, telepon, jam layanan, dan tautan template surat.
+2. **Inventaris**: ganti contoh alat dan ruangan dengan data lab yang sebenarnya.
+3. **Anggota Lab**: isi kepala lab, dosen, PLP, dan asisten untuk halaman Struktur.
+4. **Staf**: buat akun untuk tiap asisten (peran Asisten).
+5. **Jadwal Piket**: isi nama yang piket per hari.
+6. **Gambar** (taruh di folder `public/`):
+   - `logo-ltd.png`: logo lab
+   - `hero-lab.jpg`: foto latar beranda (landscape, sekitar 1920 px lebar, usahakan di bawah 500 KB)
+   - `gedung-lab.jpg`: foto gedung untuk kartu "Tentang Laboratorium" (opsional)
+
+## Praktikum dan tes
+
+**Struktur.** Satu praktikum punya **satu modul** (satu tautan, berisi semua judul) dan **enam judul**.
+Tiap judul punya satu pretest dan satu postest. Keenam judul dibuat otomatis, admin hanya mengganti namanya.
+
+**Alur admin atau asisten:** buka Praktikum, isi tautan modul, ganti nama judul, lalu buat pretest dan postest
+tiap judul dan isi soalnya (pilihan ganda, 2 sampai 5 opsi). Atur durasi di pengaturan tes. Durasi hanya bisa diatur
+admin dan asisten.
+
+**Aturan tes untuk praktikan:**
+- Satu NPM hanya bisa mengerjakan tiap tes **sekali**. Aturan dijaga di database, jadi muat ulang halaman,
+  ganti browser, atau memanggil endpoint langsung tidak bisa melewatinya.
+- Untuk memulai, praktikan mengisi nama, NPM, dan **kode akses** dari asisten. Kode dibuat di halaman tes
+  (*Buat kode*, *Buat kode baru*, *Tutup akses*).
+- Soal dan kunci jawaban tidak dikirim ke browser sebelum praktikan menekan Mulai.
+- Waktu dihitung server sejak Mulai. Jawaban terkirim otomatis saat waktu habis. Memuat ulang halaman tidak
+  mengulang waktu, dan jawaban yang sudah dipilih dipulihkan.
+- Nilai **tidak** ditampilkan ke praktikan. Setelah kirim, mereka hanya melihat "Jawaban terkirim".
+
+**Hasil Tes** (admin dan asisten): daftar hasil dengan kolom judul dan tanda "Lewat waktu", filter, dan ekspor CSV.
+Bagian **Belum mengumpulkan** berisi peserta yang sudah mulai tapi belum mengirim, dengan tombol reset.
+Menghapus sebuah hasil juga membuat peserta itu bisa mengerjakan lagi.
+
+## Berkas unggahan
+
+Berkas disimpan di `uploads/` (atau `UPLOAD_DIR`), di luar `public/`:
+- `uploads/media/...`: foto dokumentasi, disajikan publik lewat `/media/...`
+- Bukti pengajuan: hanya bisa dibuka admin lewat `/admin/bukti/[id]`
+
+Folder ini **tidak ikut Git** dan **harus dicadangkan** bersama database. Foto dikecilkan otomatis di browser
+sebelum diunggah (maksimal sisi terpanjang 1800 px).
+
+## Perintah yang sering dipakai
+
+| Perintah | Fungsi |
+|---|---|
+| `npm run dev` | Server pengembangan |
+| `npm run build` | Build produksi (jalankan sebelum deploy untuk memeriksa galat) |
+| `npm start` | Menjalankan hasil build |
+| `npx prisma studio` | Melihat dan mengubah isi database lewat browser |
+| `npx prisma migrate dev --name x` | Membuat dan menerapkan migrasi baru (pengembangan) |
+| `npx prisma migrate deploy` | Menerapkan migrasi yang sudah ada (server) |
+| `npx prisma generate` | Membuat ulang Prisma Client |
+| `npx tsx prisma/seed.ts` | Mengisi data awal |
+
+## Struktur folder
+
+```
+prisma/            skema, migrasi, seed
+public/            logo dan gambar statis
+uploads/           berkas unggahan (tidak di Git)
+src/
+  app/             halaman: (publik) dan admin, plus route handler /media dan /admin/bukti
+  actions/         Server Actions (login, pengajuan, praktikum, tes, dst.)
+  components/      komponen publik dan admin
+  lib/             helper: auth, waktu (WIB), penyimpanan berkas, pembatas laju, dll.
+```
+
+Waktu disimpan di database dalam UTC dan ditampilkan dalam WIB.
+
+## Deploy ke server Linux (ringkas)
+
+1. Pasang Node.js, PostgreSQL, Nginx, dan PM2. Buat database dan pengguna PostgreSQL khusus.
+2. Ambil kode, lalu buat `.env` produksi: `DATABASE_URL`, `AUTH_SECRET` baru (acak, jangan sama dengan lokal),
+   `ADMIN_PASSWORD` yang kuat, dan `UPLOAD_DIR` ke folder tetap di luar folder aplikasi (mis. `/var/lab-td/uploads`).
+3. Jalankan:
+   ```bash
+   npm ci
+   npx prisma migrate deploy
+   npx tsx prisma/seed.ts
+   npm run build
+   pm2 start npm --name lab-td -- start
+   pm2 save
+   ```
+4. Nginx sebagai reverse proxy ke `localhost:3000`. Teruskan alamat IP asli (aplikasi memakainya untuk
+   membatasi percobaan berulang) dan naikkan batas unggahan:
+   ```nginx
+   client_max_body_size 25m;
+   location / {
+     proxy_pass http://127.0.0.1:3000;
+     proxy_set_header Host $host;
+     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+     proxy_set_header X-Forwarded-Proto $scheme;
+   }
+   ```
+5. Aktifkan HTTPS (mis. Certbot), karena sesi login memakai cookie.
+6. **Cadangkan rutin** database (`pg_dump`) dan folder `UPLOAD_DIR`.
+
+Setiap pembaruan: `git pull`, `npm ci`, `npx prisma migrate deploy`, `npm run build`, `pm2 restart lab-td`.
+
+## Masalah yang sering muncul
+
+| Gejala | Penyebab dan solusi |
+|---|---|
+| `npx prisma ...` gagal atau mengunduh paket aneh | Perintah dijalankan di folder yang salah. Masuk ke folder yang berisi `package.json` |
+| Login selalu "Username atau password salah" | Seed belum dijalankan setelah migrasi. Jalankan `npx tsx prisma/seed.ts` |
+| VS Code menampilkan banyak galat tipe (mis. `username`, `rol` tidak dikenal) | Prisma Client belum dibuat ulang. Hentikan `npm run dev`, jalankan `npx prisma generate`, lalu pilih *TypeScript: Restart TS Server* |
+| Galat aneh setelah memindah atau mengubah banyak file | Hapus folder `.next`, lalu jalankan `npm run dev` lagi |
+| Unggah foto dokumentasi gagal atau terpotong | Setelah mengubah `next.config.ts`, hentikan dan jalankan ulang `npm run dev` |
+| Foto hero atau gambar tidak muncul | Berkas belum ada di `public/` atau namanya salah. Cek `http://localhost:3000/nama-berkas.jpg` langsung |
+| Peringatan CSS `@theme` atau `@apply` di VS Code | Aman diabaikan. Pasang ekstensi Tailwind CSS IntelliSense |
+
+## Keamanan
+
+- Jangan commit `.env` atau folder `uploads/`.
+- Ganti `ADMIN_PASSWORD` dan `AUTH_SECRET` di server produksi.
+- Sesi login bersifat stateless: mengganti password tidak otomatis mengeluarkan sesi yang sedang aktif
+  (menonaktifkan akun staf berlaku).
+- Pembatas laju disimpan di memori proses dan kembali kosong saat aplikasi di-restart.
