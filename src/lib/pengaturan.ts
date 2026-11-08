@@ -8,6 +8,7 @@ export const KUNCI_PENGATURAN = [
   "email",
   "telepon",
   "jam_layanan",
+  "template_surat",
 ] as const;
 
 export type KunciPengaturan = (typeof KUNCI_PENGATURAN)[number];

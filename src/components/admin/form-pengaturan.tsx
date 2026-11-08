@@ -68,6 +68,16 @@ export function FormPengaturan({ nilai }: { nilai: Record<string, string> }) {
         />
       </div>
 
+      <div className="card space-y-4 p-5">
+        <h2 className="font-semibold">Pengajuan</h2>
+        <Bidang
+          nama="template_surat"
+          label="Tautan template surat"
+          awal={n.template_surat ?? ""}
+          petunjuk="Tautan Google Drive/Docs. Tampil di formulir pengajuan sebagai tombol unduh template."
+        />
+      </div>
+
       {state.error && (
         <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">{state.error}</p>
       )}

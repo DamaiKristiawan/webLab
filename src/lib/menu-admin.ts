@@ -29,6 +29,7 @@ export const menuAdmin: GrupMenu[] = [
       { label: "Dashboard", href: "/admin", ikon: "dash", rol: ADMIN },
       { label: "Pengajuan", href: "/admin/pengajuan", ikon: "inbox", rol: ADMIN },
       { label: "Jadwal", href: "/admin/jadwal", ikon: "cal", rol: ADMIN },
+      { label: "Jadwal Piket", href: "/admin/piket", ikon: "users", rol: ADMIN },
     ],
   },
   {

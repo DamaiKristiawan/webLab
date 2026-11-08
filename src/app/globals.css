@@ -3,54 +3,58 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
-  Tema monokrom 60/40.
-  Terang : latar putih (dominan), permukaan "ink" hitam sebagai pengimbang.
-  Gelap  : latar hitam (dominan), permukaan "ink" putih sebagai pengimbang.
+  Tema biru navy.
+  Terang : latar putih kebiruan, aksen biru, permukaan "ink" biru tua (footer, panel).
+  Gelap  : latar biru-hitam, aksen biru terang, permukaan "ink" biru tua.
 */
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --background: #f3f7fe;
+  --foreground: #0b1b3d;
   --card: #ffffff;
-  --muted: #f4f4f5;
-  --muted-foreground: #6b6b72;
-  --border: #e4e4e7;
-  --primary: #0a0a0a;
-  --primary-foreground: #fafafa;
-  --ring: #0a0a0a;
+  --muted: #e9f0fc;
+  --muted-foreground: #566a8f;
+  --border: #d9e3f5;
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --ring: #1d4ed8;
 
-  --ink: #0a0a0a;
-  --ink-foreground: #fafafa;
-  --ink-muted: #a1a1aa;
-  --ink-border: #2a2a2e;
+  --ink: #0b2a6f;
+  --ink-foreground: #ffffff;
+  --ink-muted: #aabfe8;
+  --ink-border: #3a5cae;
+
+  --sorot: #7db1ff;
 
   --logo-filter: none;
   --logo-ink-filter: invert(1);
-  --glow: rgba(10, 10, 10, 0.08);
-  --grid: rgba(10, 10, 10, 0.075);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05), 0 10px 28px -14px rgba(0, 0, 0, 0.22);
+  --glow: rgba(29, 78, 216, 0.14);
+  --grid: rgba(29, 78, 216, 0.08);
+  --shadow-card: 0 1px 2px rgba(11, 27, 61, 0.05), 0 12px 30px -16px rgba(29, 78, 216, 0.28);
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #111113;
-  --muted: #18181b;
-  --muted-foreground: #a1a1aa;
-  --border: #26262a;
-  --primary: #fafafa;
-  --primary-foreground: #0a0a0a;
-  --ring: #fafafa;
+  --background: #050c1c;
+  --foreground: #e8efff;
+  --card: #0b1631;
+  --muted: #0f1d3f;
+  --muted-foreground: #8fa3cc;
+  --border: #1b2c55;
+  --primary: #4d84ff;
+  --primary-foreground: #04112e;
+  --ring: #4d84ff;
 
-  --ink: #fafafa;
-  --ink-foreground: #0a0a0a;
-  --ink-muted: #52525b;
-  --ink-border: #d4d4d8;
+  --ink: #0f2f78;
+  --ink-foreground: #ffffff;
+  --ink-muted: #a9bde8;
+  --ink-border: #2e4f9e;
+
+  --sorot: #7db1ff;
 
   --logo-filter: invert(1);
-  --logo-ink-filter: none;
-  --glow: rgba(255, 255, 255, 0.11);
-  --grid: rgba(255, 255, 255, 0.075);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 28px -14px rgba(0, 0, 0, 0.9);
+  --logo-ink-filter: invert(1);
+  --glow: rgba(77, 132, 255, 0.18);
+  --grid: rgba(77, 132, 255, 0.1);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 30px -16px rgba(0, 0, 0, 0.9);
 }
 
 @theme inline {
@@ -67,6 +71,7 @@
   --color-ink-foreground: var(--ink-foreground);
   --color-ink-muted: var(--ink-muted);
   --color-ink-border: var(--ink-border);
+  --color-sorot: var(--sorot);
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
@@ -151,7 +156,7 @@
     @apply h-12 rounded-xl px-6 text-base font-semibold;
   }
   .btn-primary.btn-lg {
-    box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--foreground) 60%, transparent);
+    box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--primary) 70%, transparent);
   }
   .input {
     @apply w-full rounded-lg border border-border bg-card px-3 py-2 text-sm placeholder:text-muted-foreground;
@@ -161,7 +166,7 @@
     box-shadow: var(--shadow-card);
   }
 
-  /* ---------- Permukaan kebalikan (hitam di terang, putih di gelap) ---------- */
+  /* ---------- Permukaan biru tua (footer, panel, band) ---------- */
   .surface-ink {
     background: var(--ink);
     color: var(--ink-foreground);
@@ -169,6 +174,8 @@
   .surface-ink .label-mono {
     color: var(--ink-muted);
   }
+
+  /* Logo: kode logo sebelumnya dipertahankan */
   .logo-img {
     filter: var(--logo-filter);
     flex: none;
@@ -183,6 +190,35 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted-foreground);
+  }
+
+  /* ---------- Hero beranda ----------
+     Taruh foto lab di public/hero-lab.jpg. Bila belum ada, yang tampil gradasi biru. */
+  .hero-lab {
+    background-color: #0a2a6b;
+    background-image:
+      linear-gradient(100deg, rgba(6, 22, 70, 0.95) 0%, rgba(8, 32, 96, 0.82) 45%, rgba(10, 40, 120, 0.25) 100%),
+      url("/hero-lab.jpg"),
+      radial-gradient(circle at 82% 28%, #2f6bff 0%, transparent 55%),
+      linear-gradient(135deg, #0a2a6b, #0b3b9c);
+    background-size: cover;
+    background-position: center;
+  }
+  /* Foto gedung untuk kartu "Tentang". Taruh di public/gedung-lab.jpg. */
+  .foto-gedung {
+    background-color: #123f9f;
+    background-image:
+      url("/gedung-lab.jpg"),
+      radial-gradient(circle at 75% 20%, #4d84ff 0%, transparent 60%),
+      linear-gradient(135deg, #0b2a6f, #1d4ed8);
+    background-size: cover;
+    background-position: center;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 
   /* ---------- Efek ---------- */
@@ -271,7 +307,7 @@
     transition: opacity 0.3s;
     background: radial-gradient(
       260px circle at var(--x, 50%) var(--y, 50%),
-      color-mix(in srgb, var(--foreground) 9%, transparent),
+      color-mix(in srgb, var(--primary) 12%, transparent),
       transparent 70%
     );
   }
@@ -289,14 +325,14 @@
     position: relative;
   }
 
-  /* ---------- Status (tanpa warna: dibedakan lewat bentuk) ---------- */
+  /* ---------- Status ---------- */
   .pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     width: fit-content;
     border-radius: 9999px;
-    border: 1px solid var(--foreground);
+    border: 1px solid var(--primary);
     padding: 2px 10px;
     font-size: 12px;
     font-weight: 600;
@@ -306,8 +342,8 @@
     border-style: dashed;
   }
   .pill-ok {
-    background: var(--foreground);
-    color: var(--background);
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
   .pill-no {
     color: var(--muted-foreground);

@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const JUMLAH_JUDUL = 6;
+
 async function main() {
   const username = process.env.ADMIN_USERNAME?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
@@ -17,7 +19,6 @@ async function main() {
     throw new Error("ADMIN_PASSWORD minimal 8 karakter.");
   }
 
-  // Akun admin (menjalankan seed lagi akan mereset password ke nilai di .env)
   const passwordHash = await bcrypt.hash(password, 12);
   await prisma.staff.upsert({
     where: { username },
@@ -25,7 +26,6 @@ async function main() {
     create: { nama: "Administrator", username, passwordHash, rol: "ADMIN" },
   });
 
-  // Contoh ruangan (hanya jika tabel masih kosong)
   if ((await prisma.ruangan.count()) === 0) {
     await prisma.ruangan.createMany({
       data: [
@@ -36,7 +36,6 @@ async function main() {
     });
   }
 
-  // Contoh alat (hanya jika tabel masih kosong)
   if ((await prisma.alat.count()) === 0) {
     await prisma.alat.createMany({
       data: [
@@ -49,7 +48,24 @@ async function main() {
     });
   }
 
-  // Pengaturan awal (tidak menimpa yang sudah diubah)
+  const daftarPraktikum = [
+    { nama: "Praktikum Teknik Digital", slug: "praktikum-teknik-digital", deskripsi: "Modul dan tes praktikum Teknik Digital." },
+    { nama: "Praktikum Sistem Operasi", slug: "praktikum-sistem-operasi", deskripsi: "Modul dan tes praktikum Sistem Operasi." },
+  ];
+  for (const p of daftarPraktikum) {
+    const rec = await prisma.praktikum.upsert({ where: { slug: p.slug }, update: {}, create: p });
+    const ada = await prisma.judulPraktikum.count({ where: { praktikumId: rec.id } });
+    if (ada === 0) {
+      await prisma.judulPraktikum.createMany({
+        data: Array.from({ length: JUMLAH_JUDUL }, (_, i) => ({
+          praktikumId: rec.id,
+          urutan: i + 1,
+          judul: `Judul ${i + 1}`,
+        })),
+      });
+    }
+  }
+
   const pengaturan: [string, string][] = [
     ["nama_lab", "Laboratorium Teknik Digital"],
     ["nama_instansi", "Universitas Lampung"],

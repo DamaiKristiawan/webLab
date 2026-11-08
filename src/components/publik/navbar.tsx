@@ -4,18 +4,38 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, Menu as IkonMenu, X } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  ChevronDown,
+  ClipboardList,
+  House,
+  LayoutGrid,
+  LogIn,
+  Menu as IkonMenu,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CariHalaman } from "./cari-halaman";
 import { ThemeToggle } from "./theme-toggle";
 
 type Tautan = { label: string; href: string };
-type ItemMenu = { label: string; href?: string; children?: Tautan[] };
+type ItemMenu = { label: string; ikon: LucideIcon; href?: string; children?: Tautan[] };
 
 const daftarMenu: ItemMenu[] = [
-  { label: "Beranda", href: "/" },
-  { label: "Jadwal", href: "/jadwal" },
+  { label: "Beranda", ikon: House, href: "/" },
+  {
+    label: "Jadwal",
+    ikon: CalendarDays,
+    children: [
+      { label: "Jadwal Kegiatan", href: "/jadwal" },
+      { label: "Jadwal Piket", href: "/jadwal/piket" },
+    ],
+  },
   {
     label: "Informasi",
+    ikon: Building2,
     children: [
       { label: "Profil Lab", href: "/informasi/profil" },
       { label: "Struktur Organisasi", href: "/informasi/struktur" },
@@ -23,6 +43,7 @@ const daftarMenu: ItemMenu[] = [
   },
   {
     label: "Pengajuan",
+    ikon: ClipboardList,
     children: [
       { label: "Peminjaman Alat", href: "/pengajuan/alat" },
       { label: "Peminjaman Ruangan", href: "/pengajuan/ruangan" },
@@ -30,51 +51,68 @@ const daftarMenu: ItemMenu[] = [
       { label: "Cek Status", href: "/pengajuan/status" },
     ],
   },
-  { label: "Praktikum", href: "/praktikum" },
-  { label: "Survei", href: "/survei" },
-  { label: "Dokumentasi", href: "/dokumentasi" },
+  {
+    label: "Lainnya",
+    ikon: LayoutGrid,
+    children: [
+      { label: "Praktikum", href: "/praktikum" },
+      { label: "Survei Kepuasan", href: "/survei" },
+      { label: "Dokumentasi", href: "/dokumentasi" },
+    ],
+  },
 ];
 
 const kelasTautan =
-  "inline-flex items-center gap-1 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
-const kelasAktif = "bg-foreground font-semibold text-background hover:bg-foreground hover:text-background";
+  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground";
+const kelasAktif =
+  "bg-primary font-semibold text-primary-foreground hover:bg-primary hover:text-primary-foreground";
 
 export function Navbar() {
   const pathname = usePathname();
   const [terbuka, setTerbuka] = useState(false);
 
-  const aktif = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
-  const grupAktif = (m: ItemMenu) => m.children?.some((c) => aktif(c.href)) ?? false;
+  const aktif = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+
+  // Dalam satu grup hanya tautan yang paling spesifik yang ditandai aktif
+  // (mis. di /jadwal/piket hanya "Jadwal Piket", bukan "Jadwal Kegiatan").
+  const anakAktif = (m: ItemMenu) =>
+    m.children
+      ?.filter((c) => aktif(c.href))
+      .sort((a, b) => b.href.length - a.href.length)[0]?.href;
   const tutup = () => setTerbuka(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between gap-4 px-4">
-        <Link href="/" onClick={tutup} className="flex items-center gap-3">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4">
+        <Link href="/" onClick={tutup} className="flex shrink-0 items-center gap-3">
           <Image
             src="/logo-ltd.png"
             alt="Logo Laboratorium Teknik Digital"
-            width={40}
-            height={40}
+            width={44}
+            height={44}
             priority
-            className="logo-img h-10 w-10"
+            className="logo-img h-11 w-11"
           />
           <span className="leading-tight">
-            <span className="block text-sm font-semibold">Lab Teknik Digital</span>
+            <span className="block text-[13px] font-extrabold uppercase tracking-tight">Laboratorium</span>
+            <span className="block text-[13px] font-extrabold uppercase tracking-tight">Teknik Digital</span>
             <span className="block text-xs text-muted-foreground">Universitas Lampung</span>
           </span>
         </Link>
 
         {/* Menu desktop */}
-        <nav className="hidden items-center gap-0.5 xl:flex" aria-label="Menu utama">
-          {daftarMenu.map((m) =>
-            m.children ? (
+        <nav className="hidden items-center gap-1 xl:flex" aria-label="Menu utama">
+          {daftarMenu.map((m) => {
+            const Ikon = m.ikon;
+            return m.children ? (
               <div key={m.label} className="group relative">
                 <button
                   type="button"
-                  className={cn(kelasTautan, grupAktif(m) && kelasAktif)}
+                  className={cn(kelasTautan, anakAktif(m) && kelasAktif)}
                   aria-haspopup="menu"
                 >
+                  <Ikon className="h-4 w-4" />
                   {m.label}
                   <ChevronDown className="h-4 w-4" />
                 </button>
@@ -86,7 +124,7 @@ export function Navbar() {
                         href={c.href}
                         className={cn(
                           "block rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground",
-                          aktif(c.href) && "bg-muted font-semibold text-foreground",
+                          anakAktif(m) === c.href && "bg-muted font-semibold text-foreground",
                         )}
                       >
                         {c.label}
@@ -101,20 +139,29 @@ export function Navbar() {
                 href={m.href!}
                 className={cn(kelasTautan, aktif(m.href!) && kelasAktif)}
               >
+                <Ikon className="h-4 w-4" />
                 {m.label}
               </Link>
-            ),
-          )}
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          <CariHalaman className="hidden w-44 xl:block 2xl:w-60" />
+          <ThemeToggle className="rounded-full" />
+          <Link
+            href="/admin/login"
+            className="btn hidden h-10 rounded-full bg-foreground px-5 text-background hover:opacity-90 sm:inline-flex"
+          >
+            <LogIn className="h-4 w-4" />
+            Masuk
+          </Link>
           <button
             type="button"
             onClick={() => setTerbuka((v) => !v)}
             aria-label={terbuka ? "Tutup menu" : "Buka menu"}
             aria-expanded={terbuka}
-            className="btn btn-outline h-10 w-10 px-0 xl:hidden"
+            className="btn btn-outline h-10 w-10 rounded-full px-0 xl:hidden"
           >
             {terbuka ? <X className="h-4 w-4" /> : <IkonMenu className="h-4 w-4" />}
           </button>
@@ -124,10 +171,11 @@ export function Navbar() {
       {/* Menu mobile */}
       {terbuka && (
         <nav
-          className="max-h-[calc(100vh-68px)] overflow-y-auto border-t border-border bg-background xl:hidden"
+          className="max-h-[calc(100vh-72px)] overflow-y-auto border-t border-border bg-background xl:hidden"
           aria-label="Menu seluler"
         >
-          <div className="mx-auto max-w-6xl space-y-1 px-4 py-3">
+          <div className="mx-auto max-w-7xl space-y-1 px-4 py-3">
+            <CariHalaman onPilih={tutup} className="pb-2" />
             {daftarMenu.map((m) =>
               m.children ? (
                 <div key={m.label} className="pb-1">
@@ -137,7 +185,7 @@ export function Navbar() {
                       key={c.href}
                       href={c.href}
                       onClick={tutup}
-                      className={cn(kelasTautan, "w-full", aktif(c.href) && kelasAktif)}
+                      className={cn(kelasTautan, "w-full", anakAktif(m) === c.href && kelasAktif)}
                     >
                       {c.label}
                     </Link>
@@ -154,6 +202,14 @@ export function Navbar() {
                 </Link>
               ),
             )}
+            <Link
+              href="/admin/login"
+              onClick={tutup}
+              className="btn mt-2 h-11 w-full rounded-full bg-foreground text-background hover:opacity-90"
+            >
+              <LogIn className="h-4 w-4" />
+              Masuk Staf
+            </Link>
           </div>
         </nav>
       )}
