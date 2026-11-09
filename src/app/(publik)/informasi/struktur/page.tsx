@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { Mail, Phone } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { labelJabatan } from "@/lib/konstanta";
 import { cn, inisial } from "@/lib/utils";
@@ -55,22 +54,6 @@ function Kartu({ a, besar }: { a: Anggota; besar?: boolean }) {
       <p className="mt-1 text-sm text-muted-foreground">{a.label || labelJabatan[a.jabatan]}</p>
       {a.nipNpm && <p className="mt-1 font-mono text-xs text-muted-foreground">{a.nipNpm}</p>}
       {a.bidang && <p className="mt-2 text-sm">{a.bidang}</p>}
-      {(a.email || a.kontak) && (
-        <div className="mt-3 flex flex-col gap-1 text-xs text-muted-foreground">
-          {a.email && (
-            <span className="flex items-center justify-center gap-1.5 break-all">
-              <Mail className="h-3.5 w-3.5 shrink-0" />
-              {a.email}
-            </span>
-          )}
-          {a.kontak && (
-            <span className="flex items-center justify-center gap-1.5">
-              <Phone className="h-3.5 w-3.5 shrink-0" />
-              {a.kontak}
-            </span>
-          )}
-        </div>
-      )}
     </div>
   );
 }

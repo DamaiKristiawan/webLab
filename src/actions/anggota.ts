@@ -15,20 +15,14 @@ const skema = z.object({
   label: z.string().trim().max(80, "Maksimal 80 karakter."),
   angkatan: z.string().trim().regex(/^(\d{4})?$/, "Isi 4 digit, mis. 2022."),
   nipNpm: z.string().trim().max(40, "Maksimal 40 karakter."),
-  email: z
-    .string()
-    .trim()
-    .max(120)
-    .refine((v) => v === "" || /^\S+@\S+\.\S+$/.test(v), "Email tidak valid."),
-  kontak: z.string().trim().max(40, "Maksimal 40 karakter."),
   bidang: z.string().trim().max(120, "Maksimal 120 karakter."),
   urutan: z.string().trim().regex(/^\d{0,4}$/, "Isi dengan angka."),
   staffId: z.string().trim().regex(/^\d*$/, "Tidak valid."),
 });
 
 const FIELD = [
-  "nama", "jabatan", "label", "angkatan", "nipNpm", "email",
-  "kontak", "bidang", "urutan", "staffId",
+  "nama", "jabatan", "label", "angkatan", "nipNpm",
+  "bidang", "urutan", "staffId",
 ];
 
 export async function simpanAnggota(_p: FormState, formData: FormData): Promise<FormState> {
@@ -72,8 +66,6 @@ export async function simpanAnggota(_p: FormState, formData: FormData): Promise<
     label: d.label || null,
     angkatan: d.angkatan ? Number(d.angkatan) : null,
     nipNpm: d.nipNpm || null,
-    email: d.email || null,
-    kontak: d.kontak || null,
     bidang: d.bidang || null,
     fotoUrl,
     urutan: d.urutan ? Number(d.urutan) : 0,

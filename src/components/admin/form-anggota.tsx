@@ -14,8 +14,6 @@ type Awal = {
   label: string | null;
   angkatan: number | null;
   nipNpm: string | null;
-  email: string | null;
-  kontak: string | null;
   bidang: string | null;
   fotoUrl: string | null;
   urutan: number;
@@ -41,8 +39,6 @@ export function FormAnggota({
     label: awal?.label ?? "",
     angkatan: awal?.angkatan?.toString() ?? "",
     nipNpm: awal?.nipNpm ?? "",
-    email: awal?.email ?? "",
-    kontak: awal?.kontak ?? "",
     bidang: awal?.bidang ?? "",
     urutan: awal ? String(awal.urutan) : "0",
     staffId: awal?.staffId?.toString() ?? "",
@@ -95,18 +91,7 @@ export function FormAnggota({
           <input id="nipNpm" name="nipNpm" defaultValue={v.nipNpm} className="input mt-1.5" />
           <Galat pesan={e.nipNpm} />
         </div>
-        <div>
-          <label htmlFor="kontak" className="text-sm font-medium">Kontak</label>
-          <input id="kontak" name="kontak" defaultValue={v.kontak} className="input mt-1.5" />
-          <Galat pesan={e.kontak} />
         </div>
-      </div>
-
-      <div>
-        <label htmlFor="email" className="text-sm font-medium">Email</label>
-        <input id="email" name="email" type="email" defaultValue={v.email} className="input mt-1.5" />
-        <Galat pesan={e.email} />
-      </div>
 
       <InputBerkas
         nama="foto"
