@@ -7,6 +7,8 @@ import { FormPeriodeBaru, FormPertanyaan, FormSurvei } from "@/components/admin/
 import { TombolAksi } from "@/components/admin/tombol-aksi";
 import { formatJam, formatTanggalPendek } from "@/lib/waktu";
 import { cn } from "@/lib/utils";
+import { ambilDataGrafik } from "@/lib/grafik-survei";
+import { GrafikGabungan, GrafikKuesioner } from "@/components/admin/grafik-survei";
 
 export const metadata = { title: "Kelola Kuesioner" };
 
@@ -25,6 +27,8 @@ export default async function HalamanKuesioner({
 
   const survei = await prisma.survei.findUnique({ where: { id } });
   if (!survei) notFound();
+
+  const grafik = await ambilDataGrafik(survei.tahun);
 
   const [pertanyaan, respon, sebaran, saran] = await Promise.all([
     prisma.pertanyaanSurvei.findMany({ where: { surveiId: id }, orderBy: [{ urutan: "asc" }, { id: "asc" }] }),
@@ -70,17 +74,6 @@ export default async function HalamanKuesioner({
   const skala = pertanyaan.filter((p) => p.tipe === "SKALA");
   const rataKeseluruhan = statistik(skala.map((p) => p.id));
 
-  // Rata-rata per dimensi
-  const dimensi: { nama: string; rata: number | null }[] = [];
-  const urut: string[] = [];
-  for (const p of skala) {
-    const k = p.kelompok ?? "Tanpa dimensi";
-    if (!urut.includes(k)) urut.push(k);
-  }
-  for (const k of urut) {
-    dimensi.push({ nama: k, rata: statistik(skala.filter((p) => (p.kelompok ?? "Tanpa dimensi") === k).map((p) => p.id)) });
-  }
-
   const edit = pertanyaan.find((p) => p.id === editId);
 
   return (
@@ -119,24 +112,13 @@ export default async function HalamanKuesioner({
 
       <div className="grid gap-6 xl:grid-cols-[1.4fr_1fr]">
         <div className="space-y-6">
-          {dimensi.length > 0 && (
-            <section className="card p-5">
-              <h2 className="font-semibold">Rata-rata per dimensi</h2>
-              <ul className="mt-4 space-y-3">
-                {dimensi.map((d) => (
-                  <li key={d.nama}>
-                    <div className="flex items-baseline justify-between gap-3 text-sm">
-                      <span>{d.nama}</span>
-                      <span className="font-bold tabular-nums">{d.rata === null ? "-" : fmt(d.rata)}</span>
-                    </div>
-                    <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-foreground" style={{ width: `${((d.rata ?? 0) / 5) * 100}%` }} />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+                <GrafikGabungan data={grafik} tahun={survei.tahun} />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {grafik.kuesioner.map((k, i) => (
+          <GrafikKuesioner key={k.id} data={grafik} kuesioner={k} index={i} />
+        ))}
+      </div>
 
           <div className="space-y-4">
             <h2 className="font-semibold">Rekap per pertanyaan</h2>

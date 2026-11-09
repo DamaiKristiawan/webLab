@@ -52,7 +52,7 @@ export function FormTambahStaf() {
           required
           autoCapitalize="none"
           spellCheck={false}
-          placeholder="mis. asisten.sidiq"
+          placeholder="contoh: asisten1"
           className="input mt-1.5"
         />
         <Galat pesan={e.username} />
