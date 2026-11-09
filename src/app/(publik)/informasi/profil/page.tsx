@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Clock, AtSign, Mail, MapPin } from "lucide-react";
 import { ambilPengaturan, terisi } from "@/lib/pengaturan";
 import { Skeleton } from "@/components/publik/beranda-data";
 
@@ -26,7 +26,7 @@ async function Isi() {
   const kontak = [
     { ikon: MapPin, label: "Alamat", nilai: p.alamat },
     { ikon: Mail, label: "Email", nilai: p.email },
-    { ikon: Phone, label: "Telepon", nilai: p.telepon },
+    { ikon: AtSign, label: "Instagram", nilai: p.instagram },
     { ikon: Clock, label: "Jam layanan", nilai: p.jam_layanan },
   ];
 

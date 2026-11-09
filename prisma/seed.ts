@@ -74,7 +74,7 @@ async function main() {
     ["sejarah", "Belum diisi."],
     ["alamat", "Fakultas Teknik, Universitas Lampung, Bandar Lampung"],
     ["email", "Belum diisi."],
-    ["telepon", "Belum diisi."],
+    ["instagram", "Belum diisi."],
     ["jam_layanan", "Belum diisi."],
   ];
   for (const [kunci, nilai] of pengaturan) {

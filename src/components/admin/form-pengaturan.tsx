@@ -58,7 +58,7 @@ export function FormPengaturan({ nilai }: { nilai: Record<string, string> }) {
         <Bidang nama="alamat" label="Alamat" awal={n.alamat ?? ""} baris={2} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Bidang nama="email" label="Email" awal={n.email ?? ""} />
-          <Bidang nama="telepon" label="Telepon / WhatsApp" awal={n.telepon ?? ""} />
+          <Bidang nama="instagram" label="Instagram" awal={n.instagram ?? ""} />
         </div>
         <Bidang
           nama="jam_layanan"

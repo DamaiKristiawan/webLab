@@ -1,0 +1,503 @@
+/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
+@layer properties;
+@layer theme, base, components, utilities;
+@layer theme {
+  :root, :host {
+    --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+    --spacing: 0.25rem;
+    --text-sm: 0.875rem;
+    --text-sm--line-height: calc(1.25 / 0.875);
+    --text-base: 1rem;
+    --text-base--line-height: calc(1.5 / 1);
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --default-transition-duration: 150ms;
+    --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    --default-font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    --default-mono-font-family: var(--font-geist-mono), ui-monospace, monospace;
+  }
+}
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
+  html, :host {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    font-family: var(--default-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+    font-feature-settings: var(--default-font-feature-settings, normal);
+    font-variation-settings: var(--default-font-variation-settings, normal);
+    -webkit-tap-highlight-color: transparent;
+  }
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
+  abbr:where([title]) {
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  a {
+    color: inherit;
+    -webkit-text-decoration: inherit;
+    text-decoration: inherit;
+  }
+  b, strong {
+    font-weight: bolder;
+  }
+  code, kbd, samp, pre {
+    font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+    font-feature-settings: var(--default-mono-font-feature-settings, normal);
+    font-variation-settings: var(--default-mono-font-variation-settings, normal);
+    font-size: 1em;
+  }
+  small {
+    font-size: 80%;
+  }
+  sub, sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+  sub {
+    bottom: -0.25em;
+  }
+  sup {
+    top: -0.5em;
+  }
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+  :-moz-focusring:where(:not(iframe)) {
+    outline: auto;
+  }
+  progress {
+    vertical-align: baseline;
+  }
+  summary {
+    display: list-item;
+  }
+  ol, ul, menu {
+    list-style: none;
+  }
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  button, input, select, optgroup, textarea, ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    border-radius: 0;
+    background-color: transparent;
+    opacity: 1;
+  }
+  :where(select:is([multiple], [size])) optgroup {
+    font-weight: bolder;
+  }
+  :where(select:is([multiple], [size])) optgroup option {
+    padding-inline-start: 20px;
+  }
+  ::file-selector-button {
+    margin-inline-end: 4px;
+  }
+  ::placeholder {
+    opacity: 1;
+  }
+  @supports (not (-webkit-appearance: -apple-pay-button))  or (contain-intrinsic-size: 1px) {
+    ::placeholder {
+      color: currentcolor;
+      @supports (color: color-mix(in lab, red, red)) {
+        color: color-mix(in oklab, currentcolor 50%, transparent);
+      }
+    }
+  }
+  textarea {
+    resize: vertical;
+  }
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+  ::-webkit-date-and-time-value {
+    min-height: 1lh;
+    text-align: inherit;
+  }
+  ::-webkit-datetime-edit {
+    display: inline-flex;
+  }
+  ::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+  ::-webkit-datetime-edit, ::-webkit-datetime-edit-year-field, ::-webkit-datetime-edit-month-field, ::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-hour-field, ::-webkit-datetime-edit-minute-field, ::-webkit-datetime-edit-second-field, ::-webkit-datetime-edit-millisecond-field, ::-webkit-datetime-edit-meridiem-field {
+    padding-block: 0;
+  }
+  ::-webkit-calendar-picker-indicator {
+    line-height: 1;
+  }
+  :-moz-ui-invalid {
+    box-shadow: none;
+  }
+  button, input:where([type="button"], [type="reset"], [type="submit"]), ::file-selector-button {
+    appearance: button;
+  }
+  ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+    height: auto;
+  }
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+}
+@layer utilities;
+:root {
+  --background: #f3f7fe;
+  --foreground: #0b1b3d;
+  --card: #ffffff;
+  --muted: #e9f0fc;
+  --muted-foreground: #566a8f;
+  --border: #d9e3f5;
+  --primary: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --ring: #1d4ed8;
+  --ink: #0b2a6f;
+  --ink-foreground: #ffffff;
+  --ink-muted: #aabfe8;
+  --ink-border: #3a5cae;
+  --sorot: #7db1ff;
+  --logo-filter: none;
+  --logo-ink-filter: invert(1);
+  --glow: rgba(29, 78, 216, 0.14);
+  --grid: rgba(29, 78, 216, 0.08);
+  --shadow-card: 0 1px 2px rgba(11, 27, 61, 0.05), 0 12px 30px -16px rgba(29, 78, 216, 0.28);
+}
+.dark {
+  --background: #050c1c;
+  --foreground: #e8efff;
+  --card: #0b1631;
+  --muted: #0f1d3f;
+  --muted-foreground: #8fa3cc;
+  --border: #1b2c55;
+  --primary: #4d84ff;
+  --primary-foreground: #04112e;
+  --ring: #4d84ff;
+  --ink: #0f2f78;
+  --ink-foreground: #ffffff;
+  --ink-muted: #a9bde8;
+  --ink-border: #2e4f9e;
+  --sorot: #7db1ff;
+  --logo-filter: invert(1);
+  --logo-ink-filter: invert(1);
+  --glow: rgba(77, 132, 255, 0.18);
+  --grid: rgba(77, 132, 255, 0.1);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 30px -16px rgba(0, 0, 0, 0.9);
+}
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing) * 2);
+    border-radius: var(--radius-lg);
+    padding-inline: calc(var(--spacing) * 4);
+    padding-block: calc(var(--spacing) * 2);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+    &:disabled {
+      pointer-events: none;
+    }
+    &:disabled {
+      opacity: 50%;
+    }
+  }
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    &:hover {
+      @media (hover: hover) {
+        opacity: 90%;
+      }
+    }
+  }
+  .btn-outline {
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--card);
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--muted);
+      }
+    }
+  }
+  .btn-lg {
+    height: calc(var(--spacing) * 12);
+    border-radius: var(--radius-xl);
+    padding-inline: calc(var(--spacing) * 6);
+    font-size: var(--text-base);
+    line-height: var(--tw-leading, var(--text-base--line-height));
+    --tw-font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-semibold);
+  }
+  .btn-primary.btn-lg {
+    box-shadow: 0 14px 30px -12px var(--primary);
+    @supports (color: color-mix(in lab, red, red)) {
+      box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--primary) 70%, transparent);
+    }
+  }
+  .input {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--card);
+    padding-inline: calc(var(--spacing) * 3);
+    padding-block: calc(var(--spacing) * 2);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    &::placeholder {
+      color: var(--muted-foreground);
+    }
+  }
+  .card {
+    border-radius: var(--radius-2xl);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: var(--border);
+    background-color: var(--card);
+    box-shadow: var(--shadow-card);
+  }
+  .surface-ink {
+    background: var(--ink);
+    color: var(--ink-foreground);
+  }
+  .surface-ink .label-mono {
+    color: var(--ink-muted);
+  }
+  .logo-img {
+    filter: var(--logo-filter);
+    flex: none;
+  }
+  .surface-ink .logo-img {
+    filter: var(--logo-ink-filter);
+  }
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .hero-lab {
+    background-color: #0a2a6b;
+    background-image: linear-gradient(100deg, rgba(6, 22, 70, 0.95) 0%, rgba(8, 32, 96, 0.82) 45%, rgba(10, 40, 120, 0.25) 100%), url("/hero-lab.jpg"), radial-gradient(circle at 82% 28%, #2f6bff 0%, transparent 55%), linear-gradient(135deg, #0a2a6b, #0b3b9c);
+    background-size: cover;
+    background-position: center;
+  }
+  .foto-gedung {
+    background-color: #123f9f;
+    background-image: url("/gedung-lab.jpg"), radial-gradient(circle at 75% 20%, #4d84ff 0%, transparent 60%), linear-gradient(135deg, #0b2a6f, #1d4ed8);
+    background-size: cover;
+    background-position: center;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  .bg-grid {
+    background-image: linear-gradient(to right, var(--grid) 1px, transparent 1px), linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 85% 95% at 72% 25%, #000 25%, transparent 78%);
+    mask-image: radial-gradient(ellipse 85% 95% at 72% 25%, #000 25%, transparent 78%);
+  }
+  .grid-ink {
+    background-image: linear-gradient(to right, var(--ink-foreground) 1px, transparent 1px), linear-gradient(to bottom, var(--ink-foreground) 1px, transparent 1px);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-image: linear-gradient(to right, color-mix(in srgb, var(--ink-foreground) 7%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--ink-foreground) 7%, transparent) 1px, transparent 1px);
+    }
+    background-size: 32px 32px;
+    -webkit-mask-image: linear-gradient(#000, transparent 80%);
+    mask-image: linear-gradient(#000, transparent 80%);
+  }
+  .glow {
+    background: radial-gradient(closest-side, var(--glow), transparent);
+  }
+  .outline-text {
+    color: transparent;
+    -webkit-text-stroke: 1.6px var(--foreground);
+  }
+  .chip-wrap {
+    position: relative;
+    padding: 16px;
+  }
+  .chip {
+    position: relative;
+    border-radius: 24px;
+    padding: 14px;
+    box-shadow: 0 40px 70px -34px var(--foreground);
+    @supports (color: color-mix(in lab, red, red)) {
+      box-shadow: 0 40px 70px -34px color-mix(in srgb, var(--foreground) 70%, transparent);
+    }
+  }
+  .chip-die {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1.5px solid var(--ink-foreground);
+    @supports (color: color-mix(in lab, red, red)) {
+      border: 1.5px solid color-mix(in srgb, var(--ink-foreground) 80%, transparent);
+    }
+    background-image: linear-gradient(to right, var(--ink-foreground) 1px, transparent 1px), linear-gradient(to bottom, var(--ink-foreground) 1px, transparent 1px);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-image: linear-gradient(to right, color-mix(in srgb, var(--ink-foreground) 7%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--ink-foreground) 7%, transparent) 1px, transparent 1px);
+    }
+    background-size: 28px 28px;
+  }
+  .chip-pin {
+    position: absolute;
+    pointer-events: none;
+  }
+  .chip-pin.x {
+    left: 48px;
+    right: 48px;
+    height: 16px;
+    background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 24px);
+  }
+  .chip-pin.y {
+    top: 48px;
+    bottom: 48px;
+    width: 16px;
+    background: repeating-linear-gradient(to bottom, var(--ink) 0 7px, transparent 7px 24px);
+  }
+  .chip-pin.t {
+    top: 0;
+  }
+  .chip-pin.b {
+    bottom: 0;
+  }
+  .chip-pin.l {
+    left: 0;
+  }
+  .chip-pin.r {
+    right: 0;
+  }
+  .card-sorot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: radial-gradient( 260px circle at var(--x, 50%) var(--y, 50%), var(--primary), transparent 70% );
+    @supports (color: color-mix(in lab, red, red)) {
+      background: radial-gradient( 260px circle at var(--x, 50%) var(--y, 50%), color-mix(in srgb, var(--primary) 12%, transparent), transparent 70% );
+    }
+  }
+  .card-sorot.surface-ink::before {
+    background: radial-gradient( 260px circle at var(--x, 50%) var(--y, 50%), var(--ink-foreground), transparent 70% );
+    @supports (color: color-mix(in lab, red, red)) {
+      background: radial-gradient( 260px circle at var(--x, 50%) var(--y, 50%), color-mix(in srgb, var(--ink-foreground) 14%, transparent), transparent 70% );
+    }
+  }
+  .card-sorot:hover::before {
+    opacity: 1;
+  }
+  .card-sorot > * {
+    position: relative;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    border-radius: 9999px;
+    border: 1px solid var(--primary);
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pill-wait {
+    border-style: dashed;
+  }
+  .pill-ok {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  .pill-no {
+    color: var(--muted-foreground);
+    border-color: var(--border);
+    text-decoration: line-through;
+  }
+  .pill-done {
+    background: var(--muted);
+    border-color: var(--border);
+    color: var(--muted-foreground);
+  }
+}
+@property --tw-font-weight {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-border-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+@layer properties {
+  @supports ((-webkit-hyphens: none) and (not (margin-trim: block))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+    *, ::before, ::after, ::backdrop {
+      --tw-font-weight: initial;
+      --tw-border-style: solid;
+    }
+  }
+}

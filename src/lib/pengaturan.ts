@@ -6,7 +6,7 @@ export const KUNCI_PENGATURAN = [
   "sejarah",
   "alamat",
   "email",
-  "telepon",
+  "instagram",
   "jam_layanan",
   "template_surat",
 ] as const;
