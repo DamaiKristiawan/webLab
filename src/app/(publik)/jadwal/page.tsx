@@ -51,25 +51,15 @@ async function IsiJadwal({ searchParams }: { searchParams: Params }) {
     ? (jenisParam as JenisJadwalKey)
     : undefined;
 
-  const ruanganId = Number(satu(sp.ruangan)) || undefined;
   const { awal, akhir } = rentangBulan(bulan);
 
-  const [daftar, ruangan] = await Promise.all([
-    prisma.jadwal.findMany({
-      where: {
-        mulai: { gte: awal, lt: akhir },
-        ...(jenis ? { jenis } : {}),
-        ...(ruanganId ? { ruanganId } : {}),
-      },
-      orderBy: { mulai: "asc" },
-      include: { ruangan: { select: { nama: true } } },
-    }),
-    prisma.ruangan.findMany({
-      where: { aktif: true },
-      orderBy: { nama: "asc" },
-      select: { id: true, nama: true },
-    }),
-  ]);
+  const daftar = await prisma.jadwal.findMany({
+    where: {
+      mulai: { gte: awal, lt: akhir },
+      ...(jenis ? { jenis } : {}),
+    },
+    orderBy: { mulai: "asc" },
+  });
 
   const perHari = new Map<string, typeof daftar>();
   for (const j of daftar) {
@@ -84,7 +74,6 @@ async function IsiJadwal({ searchParams }: { searchParams: Params }) {
     const q = new URLSearchParams();
     q.set("bulan", ym);
     if (jenis) q.set("jenis", jenis);
-    if (ruanganId) q.set("ruangan", String(ruanganId));
     return `/jadwal?${q.toString()}`;
   }
 
@@ -117,15 +106,6 @@ async function IsiJadwal({ searchParams }: { searchParams: Params }) {
             <option value="">Semua jenis</option>
             {JENIS_JADWAL.map((j) => (
               <option key={j} value={j}>{labelJenis[j]}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="ruangan" className="mb-1 block text-xs text-muted-foreground">Ruangan</label>
-          <select id="ruangan" name="ruangan" defaultValue={ruanganId ? String(ruanganId) : ""} className="input w-52">
-            <option value="">Semua ruangan</option>
-            {ruangan.map((r) => (
-              <option key={r.id} value={r.id}>{r.nama}</option>
             ))}
           </select>
         </div>
@@ -163,12 +143,10 @@ async function IsiJadwal({ searchParams }: { searchParams: Params }) {
                       </span>
                       <p className="mt-1 font-medium">{j.judul}</p>
                       <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                        {j.ruangan && (
-                          <span className="inline-flex items-center gap-1">
-                            <MapPin className="h-3.5 w-3.5" />
-                            {j.ruangan.nama}
-                          </span>
-                        )}
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="h-3.5 w-3.5" />
+                          Laboratorium Teknik Digital
+                        </span>
                         {j.kelas && <span>Kelas {j.kelas}</span>}
                         {j.pengampu && <span>{j.pengampu}</span>}
                       </p>

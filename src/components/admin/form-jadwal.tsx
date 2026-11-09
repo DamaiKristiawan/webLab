@@ -52,6 +52,10 @@ export function FormJadwal({
   const v = { ...(awal ?? kosong), ...(state.values ?? {}) };
   const e = state.fieldErrors ?? {};
 
+  // Ruangan dikunci: pakai "Laboratorium Teknik Digital" jika ada, kalau tidak ruangan pertama.
+  const ruanganTetap =
+    ruangan.find((r) => r.nama.toLowerCase() === "laboratorium teknik digital") ?? ruangan[0];
+
   return (
     <form action={action} className="card space-y-5 p-6">
       {awal?.id ? <input type="hidden" name="id" value={awal.id} /> : null}
@@ -72,13 +76,11 @@ export function FormJadwal({
           </select>
         </div>
         <div>
-          <label htmlFor="ruanganId" className="text-sm font-medium">Ruangan</label>
-          <select id="ruanganId" name="ruanganId" defaultValue={v.ruanganId} className="input mt-1.5">
-            <option value="">- Tidak ditentukan -</option>
-            {ruangan.map((r) => (
-              <option key={r.id} value={r.id}>{r.nama}</option>
-            ))}
-          </select>
+          <label className="text-sm font-medium">Ruangan</label>
+          <input type="hidden" name="ruanganId" value={ruanganTetap?.id ?? ""} />
+          <p className="input mt-1.5 flex items-center bg-muted text-muted-foreground">
+            Laboratorium Teknik Digital
+          </p>
         </div>
       </div>
 
