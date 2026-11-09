@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ambilStaff } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { filterHasil } from "@/lib/hasil-tes";
