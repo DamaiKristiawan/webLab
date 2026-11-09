@@ -270,30 +270,41 @@ model HasilTes {
 
 model Survei {
   id         Int                @id @default(autoincrement())
+  kode       String             @default("umum")   // jenis kuesioner: kepuasan-pengguna, pengguna, praktikum, penelitian
+  tahun      Int                @default(2026)     // periode
   judul      String
   deskripsi  String?
   aktif      Boolean            @default(true)
   pertanyaan PertanyaanSurvei[]
   respon     ResponSurvei[]
   createdAt  DateTime           @default(now())
+
+  @@unique([kode, tahun])
 }
 
 model PertanyaanSurvei {
-  id       Int             @id @default(autoincrement())
-  surveiId Int
-  survei   Survei          @relation(fields: [surveiId], references: [id], onDelete: Cascade)
-  teks     String
-  tipe     TipePertanyaan  @default(SKALA)
-  urutan   Int             @default(0)
-  jawaban  JawabanSurvei[]
+  id        Int              @id @default(autoincrement())
+  surveiId  Int
+  survei    Survei           @relation(fields: [surveiId], references: [id], onDelete: Cascade)
+  teks      String
+  tipe      TipePertanyaan   @default(SKALA)
+  kelompok  String?          // nama dimensi, mis. "Empati"
+  urutan    Int              @default(0)
+  jawaban   JawabanSurvei[]
 }
 
+// Menyimpan nama dan NPM (hanya admin yang melihat). Satu NPM satu kali per kuesioner/periode.
+// Kolom dibuat nullable agar respon anonim lama tetap valid.
 model ResponSurvei {
-  id        Int             @id @default(autoincrement())
-  surveiId  Int
-  survei    Survei          @relation(fields: [surveiId], references: [id], onDelete: Cascade)
-  createdAt DateTime        @default(now())
-  jawaban   JawabanSurvei[]
+  id          Int             @id @default(autoincrement())
+  surveiId    Int
+  survei      Survei          @relation(fields: [surveiId], references: [id], onDelete: Cascade)
+  namaPeserta String?
+  npm         String?
+  createdAt   DateTime        @default(now())
+  jawaban     JawabanSurvei[]
+
+  @@unique([surveiId, npm])
 }
 
 model JawabanSurvei {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { simpanPertanyaan, simpanSurvei } from "@/actions/survei";
+import { bukaPeriodeBaru, buatKuesionerStandar, simpanPertanyaan, simpanSurvei } from "@/actions/survei";
 import type { FormState } from "@/lib/form";
 
 function Galat({ pesan }: { pesan?: string }) {
@@ -15,6 +15,85 @@ function Pesan({ state }: { state: FormState }) {
   if (state.sukses) return <p role="status" className="text-sm font-medium">{state.sukses}</p>;
   return null;
 }
+
+// ---------- Membuat keempat kuesioner standar untuk satu tahun ----------
+
+export function FormBuatStandar({ tahunAwal }: { tahunAwal: number }) {
+  const [state, action, pending] = useActionState(buatKuesionerStandar, {} as FormState);
+
+  return (
+    <form action={action} className="card space-y-3 p-5">
+      <div>
+        <h3 className="font-semibold">Buat 4 kuesioner standar</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Kepuasan Pengguna, Pengguna, Praktikum, dan Penelitian, lengkap dengan pertanyaannya. Yang sudah ada untuk tahun
+          itu dilewati.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <label htmlFor="bs-tahun" className="text-sm font-medium">Tahun</label>
+          <input
+            id="bs-tahun"
+            name="tahun"
+            inputMode="numeric"
+            defaultValue={state.values?.tahun ?? String(tahunAwal)}
+            className="input mt-1.5 w-28"
+          />
+        </div>
+        <button type="submit" disabled={pending} className="btn btn-primary">
+          {pending ? "Membuat..." : "Buat kuesioner"}
+        </button>
+      </div>
+      <Pesan state={state} />
+    </form>
+  );
+}
+
+// ---------- Periode baru (salin dari kuesioner ini) ----------
+
+export function FormPeriodeBaru({ id, tahunSaran }: { id: number; tahunSaran: number }) {
+  const [state, action, pending] = useActionState(bukaPeriodeBaru, {} as FormState);
+
+  return (
+    <form
+      action={action}
+      onSubmit={(e) => {
+        if (!window.confirm("Buka periode baru? Periode ini akan ditutup dan jawabannya tetap tersimpan sebagai riwayat.")) {
+          e.preventDefault();
+        }
+      }}
+      className="card space-y-3 p-5"
+    >
+      <div>
+        <h3 className="font-semibold">Buka periode baru</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Menyalin pertanyaan kuesioner ini ke tahun baru dan menutup periode lama. Jawaban lama tidak dihapus, dan NPM
+          yang sama bisa mengisi lagi di periode baru.
+        </p>
+      </div>
+      <input type="hidden" name="id" value={id} />
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <label htmlFor={`pb-tahun-${id}`} className="text-sm font-medium">Tahun baru</label>
+          <input
+            id={`pb-tahun-${id}`}
+            name="tahun"
+            inputMode="numeric"
+            defaultValue={state.values?.tahun ?? String(tahunSaran)}
+            className="input mt-1.5 w-28"
+          />
+        </div>
+        <button type="submit" disabled={pending} className="btn btn-primary">
+          {pending ? "Membuka..." : "Buka periode"}
+        </button>
+      </div>
+      <Pesan state={state} />
+    </form>
+  );
+}
+
+// ---------- Pengaturan kuesioner ----------
 
 export function FormSurvei({
   awal,
@@ -31,7 +110,7 @@ export function FormSurvei({
 
   return (
     <form action={action} className="card space-y-4 p-5">
-      <h3 className="font-semibold">Pengaturan survei</h3>
+      <h3 className="font-semibold">Pengaturan kuesioner</h3>
       <input type="hidden" name="id" value={awal.id} />
       <div>
         <label htmlFor="sv-judul" className="text-sm font-medium">Judul *</label>
@@ -40,12 +119,12 @@ export function FormSurvei({
       </div>
       <div>
         <label htmlFor="sv-des" className="text-sm font-medium">Pengantar</label>
-        <textarea id="sv-des" name="deskripsi" rows={2} defaultValue={v.deskripsi} className="input mt-1.5" />
+        <textarea id="sv-des" name="deskripsi" rows={3} defaultValue={v.deskripsi} className="input mt-1.5" />
         <Galat pesan={e.deskripsi} />
       </div>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="aktif" defaultChecked={v.aktif === "on"} className="h-4 w-4" />
-        Survei dibuka untuk umum
+        Kuesioner dibuka untuk umum
       </label>
       <Pesan state={state} />
       <button type="submit" disabled={pending} className="btn btn-primary">
@@ -55,17 +134,20 @@ export function FormSurvei({
   );
 }
 
+// ---------- Pertanyaan ----------
+
 export function FormPertanyaan({
   surveiId,
   awal,
 }: {
   surveiId: number;
-  awal?: { id: number; teks: string; tipe: "SKALA" | "TEKS"; urutan: number };
+  awal?: { id: number; teks: string; tipe: "SKALA" | "TEKS"; kelompok: string | null; urutan: number };
 }) {
   const [state, action, pending] = useActionState(simpanPertanyaan, {} as FormState);
   const v = state.values ?? {
     teks: awal?.teks ?? "",
     tipe: awal?.tipe ?? "SKALA",
+    kelompok: awal?.kelompok ?? "",
     urutan: awal ? String(awal.urutan) : "",
   };
   const e = state.fieldErrors ?? {};
@@ -80,11 +162,22 @@ export function FormPertanyaan({
         <textarea id="pq-teks" name="teks" rows={2} defaultValue={v.teks} required className="input mt-1.5" />
         <Galat pesan={e.teks} />
       </div>
+      <div>
+        <label htmlFor="pq-kel" className="text-sm font-medium">Dimensi / kelompok</label>
+        <input
+          id="pq-kel"
+          name="kelompok"
+          defaultValue={v.kelompok}
+          placeholder="Mis. Empati (pertanyaan sekelompok tampil berdampingan)"
+          className="input mt-1.5"
+        />
+        <Galat pesan={e.kelompok} />
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="pq-tipe" className="text-sm font-medium">Jenis jawaban</label>
           <select id="pq-tipe" name="tipe" defaultValue={v.tipe} className="input mt-1.5">
-            <option value="SKALA">Skala 1-5</option>
+            <option value="SKALA">Bintang 1-5</option>
             <option value="TEKS">Isian teks</option>
           </select>
           <Galat pesan={e.tipe} />
@@ -100,7 +193,7 @@ export function FormPertanyaan({
         <button type="submit" disabled={pending} className="btn btn-primary">
           {pending ? "Menyimpan..." : awal ? "Simpan Perubahan" : "Tambah Pertanyaan"}
         </button>
-        {awal && <Link href="/admin/survei" className="btn btn-outline">Batal</Link>}
+        {awal && <Link href={`/admin/survei/${surveiId}`} className="btn btn-outline">Batal</Link>}
       </div>
     </form>
   );
