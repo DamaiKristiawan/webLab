@@ -46,8 +46,10 @@ export async function simpanDokumentasi(_p: FormState, formData: FormData): Prom
   await wajibAdmin();
   const id = Number(formData.get("id")) || 0;
   const terbit = formData.get("terbit") === "on";
-  const values = { ...ambilTeks(formData, ["judul", "ringkasan", "isi", "tanggal"]), terbit: terbit ? "on" : "" };
-
+const values: Record<string, string> = {
+  ...ambilTeks(formData, ["judul", "ringkasan", "isi", "tanggal"]),
+  terbit: terbit ? "on" : "",
+};
   const h = skema.safeParse(values);
   const galat: Record<string, string> = h.success ? {} : kumpulkanGalat(h.error.issues);
   const tanggal = parseTanggal(values.tanggal);
