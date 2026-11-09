@@ -69,8 +69,6 @@ model AnggotaLab {
   label    String?
   angkatan Int?
   nipNpm   String?
-  email    String?
-  kontak   String?
   bidang   String?
   fotoUrl  String?
   urutan   Int        @default(0)
