@@ -1,0 +1,91 @@
+/* ==========================================================
+   Animasi Logo LTD (Hero) — tanpa teks biner/partikel
+   Taruh di: src/components/publik/animasi-logo-hero.css
+   ========================================================== */
+
+.ltd-hero {
+  --anim-speed: 1;
+  --ltd-pin-base: #334155;
+  --ltd-surface-1: #0f172a;
+  --ltd-surface-2: #020617;
+  --ltd-ring-stroke: #1e3a8a;
+  --ltd-chip-base: #1e293b;
+  --ltd-letter: #f8fafc;
+}
+
+.ltd-hero[data-variant="light"] {
+  --ltd-pin-base: #0f172a;
+  --ltd-surface-1: #ffffff;
+  --ltd-surface-2: #f1f5f9;
+  --ltd-ring-stroke: #e2e8f0;
+  --ltd-chip-base: #0f172a;
+  --ltd-letter: #0f172a;
+}
+
+/* 1. Melayang */
+@keyframes ltdFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  50%      { transform: translateY(-16px) rotate(1.5deg) scale(1.02); }
+}
+.ltd-float {
+  animation: ltdFloat calc(4s / var(--anim-speed)) ease-in-out infinite;
+}
+
+/* 2. Cahaya berjalan mengelilingi body chip */
+@keyframes ltdCircuit {
+  from { stroke-dashoffset: 520; }
+  to   { stroke-dashoffset: 0; }
+}
+.ltd-chip-flow {
+  stroke-dasharray: 90 430;
+  animation: ltdCircuit calc(3s / var(--anim-speed)) linear infinite;
+  filter: drop-shadow(0 0 8px #38bdf8);
+}
+
+/* 3. Gelombang sinyal di 16 pin */
+@keyframes ltdPinWave {
+  0%, 100% { stroke: var(--ltd-pin-base); filter: none; }
+  40%, 60% { stroke: #2563eb; filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.9)); }
+}
+.ltd-pin-1 { animation: ltdPinWave calc(2s / var(--anim-speed)) ease-in-out infinite 0s; }
+.ltd-pin-2 { animation: ltdPinWave calc(2s / var(--anim-speed)) ease-in-out infinite 0.25s; }
+.ltd-pin-3 { animation: ltdPinWave calc(2s / var(--anim-speed)) ease-in-out infinite 0.5s; }
+.ltd-pin-4 { animation: ltdPinWave calc(2s / var(--anim-speed)) ease-in-out infinite 0.75s; }
+
+/* 4. Titik sinyal di ujung pin */
+@keyframes ltdDot {
+  0%   { opacity: 0; transform: scale(0.5); }
+  50%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(0.5); }
+}
+.ltd-signal {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ltdDot calc(2s / var(--anim-speed)) ease-in-out infinite;
+}
+
+/* 5. Cincin orbit */
+@keyframes ltdSpinCW  { to { transform: rotate(360deg); } }
+@keyframes ltdSpinCCW { to { transform: rotate(-360deg); } }
+.ltd-orbit-1 { animation: ltdSpinCW  calc(22s / var(--anim-speed)) linear infinite; }
+.ltd-orbit-2 { animation: ltdSpinCCW calc(15s / var(--anim-speed)) linear infinite; }
+.ltd-orbit-3 { animation: ltdSpinCW  calc(30s / var(--anim-speed)) linear infinite; }
+
+/* 6. Glow belakang */
+@keyframes ltdBreath {
+  0%, 100% { transform: scale(0.92); opacity: 0.55; }
+  50%      { transform: scale(1.18); opacity: 0.95; }
+}
+.ltd-glow { animation: ltdBreath calc(4s / var(--anim-speed)) ease-in-out infinite; }
+
+/* 7. Denyut huruf LTD */
+@keyframes ltdLetterGlow {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(37, 99, 235, 0)); }
+  50%      { filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.55)); }
+}
+.ltd-letters { animation: ltdLetterGlow calc(3s / var(--anim-speed)) ease-in-out infinite; }
+
+/* Hormati pengaturan "kurangi gerakan" */
+@media (prefers-reduced-motion: reduce) {
+  .ltd-hero *, .ltd-hero { animation: none !important; transition: none !important; }
+}
