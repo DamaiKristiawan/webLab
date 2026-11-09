@@ -25,7 +25,8 @@ export const labelJabatan = {
   KEPALA_LAB: "Kepala Laboratorium",
   DOSEN: "Dosen Laboratorium",
   PLP: "PLP",
-  ASISTEN: "Asisten Praktikum",
+  KOORDINATOR: "Koordinator Laboratorium",
+  ASISTEN: "Asisten Laboratorium",
 } as const;
 
 export const labelRol = {

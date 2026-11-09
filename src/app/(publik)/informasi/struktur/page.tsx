@@ -128,16 +128,17 @@ async function Isi() {
       <Kelompok judul="Kepala Laboratorium" daftar={per("KEPALA_LAB")} besar />
       <Kelompok judul="Dosen Laboratorium" daftar={per("DOSEN")} />
       <Kelompok judul="PLP" daftar={per("PLP")} />
+      <Kelompok judul="Koordinator Laboratorium" daftar={per("KOORDINATOR")} />
       {adaAngkatan ? (
         angkatan.map((ang) => (
           <Kelompok
             key={ang ?? "x"}
-            judul={ang ? `Asisten Praktikum Angkatan ${ang}` : "Asisten Praktikum"}
+            judul={ang ? `Asisten Laboratorium Angkatan ${ang}` : "Asisten Laboratorium"}
             daftar={asisten.filter((a) => a.angkatan === ang)}
           />
         ))
       ) : (
-        <Kelompok judul="Asisten Praktikum" daftar={asisten} />
+        <Kelompok judul="Asisten Laboratorium" daftar={asisten} />
       )}
     </div>
   );
@@ -149,7 +150,7 @@ export default function Struktur() {
       <p className="label-mono">Informasi</p>
       <h1 className="mt-2 text-3xl font-extrabold tracking-tighter sm:text-5xl">Struktur Organisasi</h1>
       <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
-        Kepala laboratorium, dosen, PLP, dan asisten Laboratorium Teknik Digital.
+        Kepala laboratorium, dosen, PLP, koordinator, dan asisten Laboratorium Teknik Digital.
       </p>
       <Suspense fallback={<Skeleton className="mt-14 h-64" />}>
         <Isi />

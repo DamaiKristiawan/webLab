@@ -11,7 +11,7 @@ import { hapusGambar, periksaGambar, simpanGambar, type GambarValid } from "@/li
 
 const skema = z.object({
   nama: z.string().trim().min(2, "Nama minimal 2 karakter.").max(120, "Nama maksimal 120 karakter."),
-  jabatan: z.enum(["KEPALA_LAB", "DOSEN", "PLP", "ASISTEN"]),
+  jabatan: z.enum(["KEPALA_LAB", "DOSEN", "PLP", "KOORDINATOR", "ASISTEN"]),
   label: z.string().trim().max(80, "Maksimal 80 karakter."),
   angkatan: z.string().trim().regex(/^(\d{4})?$/, "Isi 4 digit, mis. 2022."),
   nipNpm: z.string().trim().max(40, "Maksimal 40 karakter."),

@@ -27,6 +27,10 @@ export default async function HalamanAnggota({
     prisma.staff.findMany({ orderBy: { nama: "asc" }, select: { id: true, nama: true, username: true } }),
   ]);
 
+  // Urutkan ulang menurut urutan di labelJabatan (sort JS stabil, jadi urutan & nama tetap terjaga)
+  const urutJabatan = Object.keys(labelJabatan);
+  anggota.sort((a, b) => urutJabatan.indexOf(a.jabatan) - urutJabatan.indexOf(b.jabatan));
+
   const edit = anggota.find((a) => a.id === editId);
   // Akun yang sudah ditautkan ke anggota lain tidak ditawarkan lagi
   const terpakai = new Set(anggota.filter((a) => a.staffId && a.id !== edit?.id).map((a) => a.staffId));
@@ -37,8 +41,8 @@ export default async function HalamanAnggota({
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">Anggota Lab</h1>
         <p className="text-sm text-muted-foreground">
-          Data yang tampil di halaman Struktur: kepala lab, dosen, PLP, dan asisten. Terpisah dari akun
-          login, tetapi boleh ditautkan.
+          Data yang tampil di halaman Struktur: kepala lab, dosen, PLP, koordinator, dan asisten. Terpisah
+          dari akun login, tetapi boleh ditautkan.
         </p>
       </div>
 

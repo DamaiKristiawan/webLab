@@ -16,6 +16,7 @@ enum JabatanLab {
   KEPALA_LAB
   DOSEN
   PLP
+  KOORDINATOR
   ASISTEN
 }
 
