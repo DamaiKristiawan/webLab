@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { wajibAdmin } from "@/lib/auth";
@@ -51,9 +52,20 @@ export default async function HalamanAnggota({
               {anggota.map((a) => (
                 <li key={a.id} className={cn("card p-4", !a.aktif && "opacity-70")}>
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-muted text-sm font-extrabold">
-                      {inisial(a.nama)}
-                    </span>
+                    {a.fotoUrl ? (
+                      <Image
+                        src={a.fotoUrl}
+                        alt=""
+                        width={40}
+                        height={40}
+                        unoptimized
+                        className="h-10 w-10 shrink-0 rounded-full border border-border object-cover"
+                      />
+                    ) : (
+                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border bg-muted text-sm font-extrabold">
+                        {inisial(a.nama)}
+                      </span>
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold">{a.nama}</p>
                       <p className="text-sm text-muted-foreground">

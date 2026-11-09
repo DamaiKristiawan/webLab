@@ -190,20 +190,17 @@ export function FormPengajuan({
           </a>
         )}
         <p className="text-sm text-muted-foreground">
-          Lampirkan surat permohonan yang sudah ditandatangani. Pilih salah satu: unggah berkas atau
-          tautan Google Drive (atau keduanya).
+          Lampirkan surat permohonan yang sudah ditandatangani (wajib).
         </p>
-        <Bidang id="bukti" label="Unggah berkas (PDF/JPG/PNG, maks 5 MB)" galat={e.bukti} petunjuk="Berkas perlu dipilih ulang bila formulir dikirim ulang setelah galat.">
+        <Bidang id="bukti" label="Unggah berkas *" galat={e.bukti} petunjuk="PDF, JPG, atau PNG, maks 5 MB. Berkas perlu dipilih ulang bila formulir dikirim ulang setelah galat.">
           <input
             id="bukti"
             name="bukti"
             type="file"
+            required
             accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/png,image/jpeg"
             className="input file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm file:font-medium"
           />
-        </Bidang>
-        <Bidang id="buktiLink" label="Tautan Google Drive" galat={e.buktiLink} petunjuk="Pastikan akses tautan diatur 'Siapa saja yang memiliki link'.">
-          <input id="buktiLink" name="buktiLink" type="url" placeholder="https://drive.google.com/..." defaultValue={v.buktiLink ?? ""} className="input" />
         </Bidang>
       </Seksi>
 

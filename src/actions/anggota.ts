@@ -7,6 +7,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { wajibAdmin } from "@/lib/auth";
 import { ambilTeks, kumpulkanGalat, type FormState } from "@/lib/form";
+import { hapusGambar, periksaGambar, simpanGambar, type GambarValid } from "@/lib/media";
 
 const skema = z.object({
   nama: z.string().trim().min(2, "Nama minimal 2 karakter.").max(120, "Nama maksimal 120 karakter."),
@@ -21,18 +22,13 @@ const skema = z.object({
     .refine((v) => v === "" || /^\S+@\S+\.\S+$/.test(v), "Email tidak valid."),
   kontak: z.string().trim().max(40, "Maksimal 40 karakter."),
   bidang: z.string().trim().max(120, "Maksimal 120 karakter."),
-  fotoUrl: z
-    .string()
-    .trim()
-    .max(300)
-    .refine((v) => v === "" || /^(https?:\/\/|\/)/.test(v), "Harus diawali http(s):// atau /."),
   urutan: z.string().trim().regex(/^\d{0,4}$/, "Isi dengan angka."),
   staffId: z.string().trim().regex(/^\d*$/, "Tidak valid."),
 });
 
 const FIELD = [
   "nama", "jabatan", "label", "angkatan", "nipNpm", "email",
-  "kontak", "bidang", "fotoUrl", "urutan", "staffId",
+  "kontak", "bidang", "urutan", "staffId",
 ];
 
 export async function simpanAnggota(_p: FormState, formData: FormData): Promise<FormState> {
@@ -47,6 +43,29 @@ export async function simpanAnggota(_p: FormState, formData: FormData): Promise<
   }
   const d = h.data;
 
+  // Foto: diperiksa dulu sebelum ada yang disimpan
+  const f = formData.get("foto");
+  const berkas = f instanceof File && f.size > 0 ? f : null;
+  const hapusFotoLama = formData.get("hapus_foto") === "on";
+  let gambar: GambarValid | null = null;
+  if (berkas) {
+    const p = await periksaGambar(berkas);
+    if ("error" in p) return { error: "Periksa kembali isian.", fieldErrors: { foto: p.error }, values };
+    gambar = p;
+  }
+
+  const lama = id ? await prisma.anggotaLab.findUnique({ where: { id }, select: { fotoUrl: true } }) : null;
+  if (id && !lama) return { error: "Data tidak ditemukan.", values };
+
+  let fotoUrl = lama?.fotoUrl ?? null;
+  let urlBaru: string | null = null;
+  if (gambar) {
+    urlBaru = await simpanGambar(gambar);
+    fotoUrl = urlBaru;
+  } else if (hapusFotoLama) {
+    fotoUrl = null;
+  }
+
   const data = {
     nama: d.nama,
     jabatan: d.jabatan,
@@ -56,7 +75,7 @@ export async function simpanAnggota(_p: FormState, formData: FormData): Promise<
     email: d.email || null,
     kontak: d.kontak || null,
     bidang: d.bidang || null,
-    fotoUrl: d.fotoUrl || null,
+    fotoUrl,
     urutan: d.urutan ? Number(d.urutan) : 0,
     staffId: d.staffId ? Number(d.staffId) : null,
     aktif,
@@ -66,6 +85,7 @@ export async function simpanAnggota(_p: FormState, formData: FormData): Promise<
     if (id) await prisma.anggotaLab.update({ where: { id }, data });
     else await prisma.anggotaLab.create({ data });
   } catch (e) {
+    await hapusGambar(urlBaru); // batalkan unggahan bila database gagal
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
         return {
@@ -79,6 +99,7 @@ export async function simpanAnggota(_p: FormState, formData: FormData): Promise<
     throw e;
   }
 
+  if (lama?.fotoUrl && lama.fotoUrl !== fotoUrl) await hapusGambar(lama.fotoUrl); // foto lama sudah tidak dipakai
   revalidatePath("/admin/anggota");
   revalidatePath("/informasi/struktur");
   if (id) redirect("/admin/anggota");
@@ -99,7 +120,9 @@ export async function alihkanAnggota(_p: FormState, formData: FormData): Promise
 export async function hapusAnggota(_p: FormState, formData: FormData): Promise<FormState> {
   await wajibAdmin();
   const id = Number(formData.get("id"));
+  const a = await prisma.anggotaLab.findUnique({ where: { id }, select: { fotoUrl: true } });
   await prisma.anggotaLab.deleteMany({ where: { id } });
+  await hapusGambar(a?.fotoUrl);
   revalidatePath("/admin/anggota");
   revalidatePath("/informasi/struktur");
   return {};

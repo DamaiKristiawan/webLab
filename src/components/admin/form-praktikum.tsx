@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { simpanJudul, simpanPraktikum } from "@/actions/praktikum";
 import { simpanSoal, simpanTes } from "@/actions/tes";
 import type { FormState } from "@/lib/form";
+import { InputBerkas } from "@/components/admin/input-berkas";
 
 function Galat({ pesan }: { pesan?: string }) {
   return pesan ? <p role="alert" className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{pesan}</p> : null;
@@ -26,7 +27,6 @@ export function FormPraktikum({
   const v = state.values ?? {
     nama: awal?.nama ?? "",
     deskripsi: awal?.deskripsi ?? "",
-    modulUrl: awal?.modulUrl ?? "",
     aktif: awal ? (awal.aktif ? "on" : "") : "on",
   };
   const e = state.fieldErrors ?? {};
@@ -45,19 +45,15 @@ export function FormPraktikum({
         <textarea id="p-des" name="deskripsi" rows={3} defaultValue={v.deskripsi} className="input mt-1.5" />
         <Galat pesan={e.deskripsi} />
       </div>
-      <div>
-        <label htmlFor="p-modul" className="text-sm font-medium">Tautan modul</label>
-        <input
-          id="p-modul"
-          name="modulUrl"
-          type="url"
-          placeholder="https://drive.google.com/..."
-          defaultValue={v.modulUrl}
-          className="input mt-1.5"
-        />
-        <p className="mt-1 text-xs text-muted-foreground">Satu modul untuk seluruh judul. Atur akses Drive ke "siapa saja yang memiliki link".</p>
-        <Galat pesan={e.modulUrl} />
-      </div>
+      <InputBerkas
+        nama="modul"
+        namaHapus="hapus_modul"
+        label="Modul (PDF)"
+        jenis="pdf"
+        awalUrl={awal?.modulUrl}
+        galat={e.modul}
+        petunjuk="Satu modul untuk seluruh judul. Berkas PDF, maks 10 MB. Pilih ulang berkas bila formulir dikirim ulang setelah galat."
+      />
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="aktif" defaultChecked={v.aktif === "on"} className="h-4 w-4" />
         Tampilkan di situs publik

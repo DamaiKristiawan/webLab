@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { simpanPengaturan } from "@/actions/pengaturan";
 import type { FormState } from "@/lib/form";
+import { InputBerkas } from "@/components/admin/input-berkas";
 
 const BAWAAN = "Belum diisi.";
 
@@ -70,11 +71,13 @@ export function FormPengaturan({ nilai }: { nilai: Record<string, string> }) {
 
       <div className="card space-y-4 p-5">
         <h2 className="font-semibold">Pengajuan</h2>
-        <Bidang
-          nama="template_surat"
-          label="Tautan template surat"
-          awal={n.template_surat ?? ""}
-          petunjuk="Tautan Google Drive/Docs. Tampil di formulir pengajuan sebagai tombol unduh template."
+        <InputBerkas
+          nama="template_surat_file"
+          namaHapus="hapus_template_surat"
+          label="Template surat (PDF)"
+          jenis="pdf"
+          awalUrl={n.template_surat && n.template_surat.trim() !== BAWAAN ? n.template_surat : null}
+          petunjuk="Unggah berkas PDF, maks 10 MB. Tampil di formulir pengajuan sebagai tombol unduh template."
         />
       </div>
 

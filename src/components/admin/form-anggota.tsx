@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { simpanAnggota } from "@/actions/anggota";
 import type { FormState } from "@/lib/form";
 import { labelJabatan } from "@/lib/konstanta";
+import { InputBerkas } from "@/components/admin/input-berkas";
 
 type Awal = {
   id: number;
@@ -43,7 +44,6 @@ export function FormAnggota({
     email: awal?.email ?? "",
     kontak: awal?.kontak ?? "",
     bidang: awal?.bidang ?? "",
-    fotoUrl: awal?.fotoUrl ?? "",
     urutan: awal ? String(awal.urutan) : "0",
     staffId: awal?.staffId?.toString() ?? "",
     aktif: awal ? (awal.aktif ? "on" : "") : "on",
@@ -108,11 +108,14 @@ export function FormAnggota({
         <Galat pesan={e.email} />
       </div>
 
-      <div>
-        <label htmlFor="fotoUrl" className="text-sm font-medium">Tautan foto</label>
-        <input id="fotoUrl" name="fotoUrl" placeholder="https://... (opsional, kosong = inisial)" defaultValue={v.fotoUrl} className="input mt-1.5" />
-        <Galat pesan={e.fotoUrl} />
-      </div>
+      <InputBerkas
+        nama="foto"
+        label="Foto"
+        jenis="gambar"
+        awalUrl={awal?.fotoUrl}
+        galat={e.foto}
+        petunjuk="JPG, PNG, atau WebP, maks 8 MB. Kosong = tampil inisial nama. Pilih ulang foto bila formulir dikirim ulang setelah galat."
+      />
 
       <div className="grid grid-cols-2 gap-3">
         <div>

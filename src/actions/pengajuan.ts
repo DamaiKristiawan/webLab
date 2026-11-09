@@ -17,15 +17,10 @@ const skema = z.object({
   programStudi: z.string().trim().min(2, "Isi program studi.").max(100, "Maksimal 100 karakter."),
   email: z.string().trim().max(120, "Maksimal 120 karakter.").regex(/^\S+@\S+\.\S+$/, "Email tidak valid."),
   noHp: z.string().trim().regex(/^[0-9+\-\s]{8,20}$/, "Nomor HP tidak valid."),
-  keperluan: z.string().trim().min(5, "Jelaskan keperluan minimal 5 karakter.").max(1000, "Maksimal 1000 karakter."),
+  keperluan: z.string().trim().min(10, "Jelaskan keperluan minimal 10 karakter.").max(1000, "Maksimal 1000 karakter."),
   keterangan: z.string().trim().max(1000, "Maksimal 1000 karakter."),
   tanggalMulai: z.string(),
   tanggalSelesai: z.string(),
-  buktiLink: z
-    .string()
-    .trim()
-    .max(500, "Tautan terlalu panjang.")
-    .refine((v) => v === "" || /^https:\/\/\S+$/.test(v), "Tautan harus diawali https://"),
   ruanganId: z.string().trim().regex(/^\d*$/, "Pilihan tidak valid."),
   judulPenelitian: z.string().trim().max(250, "Maksimal 250 karakter."),
   dosenPembimbing: z.string().trim().max(120, "Maksimal 120 karakter."),
@@ -43,7 +38,6 @@ const KOLOM_TEKS = [
   "keterangan",
   "tanggalMulai",
   "tanggalSelesai",
-  "buktiLink",
   "ruanganId",
   "judulPenelitian",
   "dosenPembimbing",
@@ -94,7 +88,7 @@ export async function kirimPengajuan(_prev: FormState, formData: FormData): Prom
     if (!ruanganId) galat.ruanganId = "Pilih ruangan.";
   }
   if (jenis === "PENELITIAN") {
-    if (values.judulPenelitian.trim().length < 5) galat.judulPenelitian = "Isi judul penelitian (minimal 5 karakter).";
+    if (values.judulPenelitian.trim().length < 10) galat.judulPenelitian = "Isi judul penelitian (minimal 10 karakter).";
     if (values.dosenPembimbing.trim().length < 3) galat.dosenPembimbing = "Isi nama dosen pembimbing.";
   }
 
@@ -116,16 +110,13 @@ export async function kirimPengajuan(_prev: FormState, formData: FormData): Prom
   // ---- Bukti ----
   const f = formData.get("bukti");
   const berkas = f instanceof File && f.size > 0 ? f : null;
-  const link = values.buktiLink.trim();
   let valid: BerkasValid | null = null;
   if (berkas) {
     const p = await periksaBerkas(berkas);
     if ("error" in p) galat.bukti = p.error;
     else valid = p;
   }
-  if (!berkas && !link && !galat.buktiLink) {
-    galat.bukti = "Unggah berkas atau sertakan tautan Google Drive.";
-  }
+  if (!berkas) galat.bukti = "Unggah surat permohonan (PDF, JPG, atau PNG).";
 
   if (Object.keys(galat).length > 0 || !d || !mulai || !selesai) {
     return { error: "Periksa kembali isian formulir.", fieldErrors: galat, values };
@@ -200,7 +191,6 @@ export async function kirimPengajuan(_prev: FormState, formData: FormData): Prom
           dosenPembimbing: jenis === "PENELITIAN" ? d.dosenPembimbing : null,
           abstrak: jenis === "PENELITIAN" ? d.abstrak || null : null,
           buktiUrl: kunciBerkas,
-          buktiLink: link || null,
           alat: item.length > 0 ? { create: item } : undefined,
         },
       });
