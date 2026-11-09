@@ -1,261 +1,241 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./animasi-logo-hero.css";
 
-type Props = {
-  /** "light" = lingkaran putih + huruf gelap (default, seperti screenshot). "dark" = lingkaran gelap + huruf putih. */
-  variant?: "dark" | "light";
+type Varian = "light" | "dark";
+
+const OPSI_TEMA: ReadonlyArray<readonly [Varian, string]> = [
+  ["light", "Putih Asli"],
+  ["dark", "Dark Hologram"],
+];
+
+/* 16 pin: 4 per sisi chip. n = urutan gelombang (1..4) */
+const POS = [160, 187, 213, 240];
+const PINS = POS.flatMap((p, i) => [
+  { x1: p, y1: 112, x2: p, y2: 136, cx: p, cy: 104, n: i + 1 }, // atas
+  { x1: p, y1: 264, x2: p, y2: 288, cx: p, cy: 296, n: i + 1 }, // bawah
+  { x1: 112, y1: p, x2: 136, y2: p, cx: 104, cy: p, n: i + 1 }, // kiri
+  { x1: 264, y1: p, x2: 288, y2: p, cx: 296, cy: p, n: i + 1 }, // kanan
+]);
+
+export default function AnimasiLogoHero({
+  className = "",
+}: {
   className?: string;
-};
+}) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [varian, setVarian] = useState<Varian>("light");
 
-const PIN_CLASS = ["ltd-pin-1", "ltd-pin-2", "ltd-pin-3", "ltd-pin-4"] as const;
-const DELAY = [0, 0.25, 0.5, 0.75] as const;
-const POS = [121, 147, 173, 199] as const;
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-export function AnimasiLogoHero({ variant = "light", className = "" }: Props) {
-  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
-  const gradId = `ltdGrad${uid}`;
-  const surfId = `ltdSurf${uid}`;
+    const layers = Array.from(
+      stage.querySelectorAll<HTMLElement>("[data-depth]")
+    );
+    const target = { x: 0, y: 0 };
+    const cur = { x: 0, y: 0 };
+    let raf = 0;
 
-  const zoneRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
+    const tick = () => {
+      // Lerp: makin kecil angkanya, makin halus & lambat mengikuti kursor
+      cur.x += (target.x - cur.x) * 0.07;
+      cur.y += (target.y - cur.y) * 0.07;
 
-  function tilt(e: React.PointerEvent<HTMLDivElement>) {
-    const zone = zoneRef.current;
-    const svg = svgRef.current;
-    if (!zone || !svg) return;
-    const r = zone.getBoundingClientRect();
-    const x = e.clientX - r.left - r.width / 2;
-    const y = e.clientY - r.top - r.height / 2;
-    svg.style.transform = `perspective(700px) rotateX(${(-y / 14).toFixed(2)}deg) rotateY(${(x / 14).toFixed(2)}deg) scale(1.04)`;
-  }
+      for (const el of layers) {
+        const d = parseFloat(el.dataset.depth || "0");
+        const tx = cur.x * d;
+        const ty = cur.y * d;
+        el.style.transform =
+          el.dataset.tilt === "1"
+            ? `translate3d(${tx}px, ${ty}px, 0) rotateY(${cur.x * 10}deg) rotateX(${-cur.y * 10}deg)`
+            : `translate3d(${tx}px, ${ty}px, 0)`;
+      }
 
-  function reset() {
-    if (svgRef.current) {
-      svgRef.current.style.transform =
-        "perspective(700px) rotateX(0deg) rotateY(0deg) scale(1)";
-    }
-  }
+      const diff = Math.abs(target.x - cur.x) + Math.abs(target.y - cur.y);
+      raf = diff > 0.0005 ? requestAnimationFrame(tick) : 0;
+    };
+
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    const onMove = (e: PointerEvent) => {
+      const r = stage.getBoundingClientRect();
+      const nx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      const ny = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      target.x = Math.max(-1, Math.min(1, nx));
+      target.y = Math.max(-1, Math.min(1, ny));
+      kick();
+    };
+
+    const onLeave = () => {
+      target.x = 0;
+      target.y = 0;
+      kick();
+    };
+
+    stage.addEventListener("pointermove", onMove);
+    stage.addEventListener("pointerleave", onLeave);
+    return () => {
+      stage.removeEventListener("pointermove", onMove);
+      stage.removeEventListener("pointerleave", onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   return (
     <div
-      ref={zoneRef}
-      data-variant={variant}
-      onPointerMove={tilt}
-      onPointerLeave={reset}
-      onPointerCancel={reset}
-      className={`ltd-hero relative flex h-full w-full min-h-[360px] md:min-h-[520px] flex-col items-center justify-center ${className}`}
+      className={`ltd-hero mx-auto flex w-full max-w-[460px] flex-col items-center gap-6 ${className}`}
+      data-variant={varian}
     >
-      {/* Panggung: semua lapisan diukur dari satu kotak persegi supaya selalu di tengah */}
-      <div className="relative mx-auto flex aspect-square w-[320px] max-w-full items-center justify-center sm:w-[440px] lg:w-[500px]">
-        {/* Cahaya belakang */}
-        <div className="ltd-glow pointer-events-none absolute inset-0 m-auto h-[78%] w-[78%] rounded-full bg-gradient-to-tr from-blue-600/50 via-sky-400/40 to-cyan-300/30 blur-2xl" />
-
-        {/* Cincin orbit */}
-        <div className="ltd-orbit-1 pointer-events-none absolute inset-0 m-auto h-[80%] w-[80%] rounded-full border-2 border-dashed border-sky-400/30" />
-        <div className="ltd-orbit-2 pointer-events-none absolute inset-0 m-auto h-[90%] w-[90%] rounded-full border border-transparent border-t-sky-400/70 border-b-blue-500/40">
-          <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]" />
-        </div>
-        <div className="ltd-orbit-3 pointer-events-none absolute inset-0 m-auto h-full w-full rounded-full border border-slate-500/40">
-          <span className="absolute -right-1 top-1/2 h-2 w-2 rounded-full bg-blue-400/80" />
-          <span className="absolute -left-1 top-1/2 h-2 w-2 rounded-full bg-blue-400/80" />
+      <div ref={stageRef} className="ltd-stage">
+        {/* Lapisan 1: glow */}
+        <div data-depth="6" className="ltd-layer">
+          <div className="ltd-glow" />
         </div>
 
-        {/* Logo */}
-        <div className="ltd-float relative z-20 h-[72%] w-[72%] cursor-pointer">
-          <svg
-            ref={svgRef}
-            viewBox="0 0 320 320"
-            role="img"
-            aria-label="Logo Laboratorium Teknik Digital"
-            className="h-full w-full drop-shadow-[0_20px_45px_rgba(37,99,235,0.55)] transition-transform duration-300"
-            style={{
-              transform:
-                "perspective(700px) rotateX(0deg) rotateY(0deg) scale(1)",
-            }}
-          >
-            <defs>
-              <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#38bdf8" />
-                <stop offset="50%" stopColor="#2563eb" />
-                <stop offset="100%" stopColor="#06b6d4" />
-              </linearGradient>
-              <radialGradient id={surfId} cx="50%" cy="35%" r="65%">
-                <stop
-                  offset="0%"
-                  style={{ stopColor: "var(--ltd-surface-1)" }}
-                />
-                <stop
-                  offset="100%"
-                  style={{ stopColor: "var(--ltd-surface-2)" }}
-                />
-              </radialGradient>
-            </defs>
-
-            {/* Lingkaran dasar */}
-            <circle
-              cx="160"
-              cy="160"
-              r="138"
-              fill={`url(#${surfId})`}
-              strokeWidth="3"
-              style={{ stroke: "var(--ltd-ring-stroke)" }}
-            />
-            <circle
-              cx="160"
-              cy="160"
-              r="126"
-              fill="none"
-              stroke="#3b82f6"
-              strokeWidth="1"
-              strokeDasharray="6 6"
-              opacity="0.3"
-            />
-
-            {/* 16 pin IC */}
-            {/* Atas */}
-            <g strokeWidth="9.5" strokeLinecap="round">
-              {POS.map((x, i) => (
-                <line
-                  key={`t${x}`}
-                  x1={x}
-                  y1={54}
-                  x2={x}
-                  y2={82}
-                  className={PIN_CLASS[i]}
-                />
-              ))}
+        {/* Lapisan 2: cincin (titik-titik, putus-putus, busur) */}
+        <div data-depth="12" className="ltd-layer">
+          <svg className="ltd-svg" viewBox="0 0 400 400" aria-hidden="true">
+            {/* cincin titik-titik */}
+            <g className="ltd-orbit-3">
+              <circle
+                cx="200"
+                cy="200"
+                r="192"
+                fill="none"
+                stroke="#60a5fa"
+                strokeOpacity="0.65"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray="0.1 14"
+              />
             </g>
-            <g fill="#38bdf8">
-              {POS.map((x, i) => (
-                <circle
-                  key={`tn${x}`}
-                  cx={x}
-                  cy={46}
-                  r={3}
-                  className="ltd-signal"
-                  style={{ animationDelay: `${DELAY[i]}s` }}
-                />
-              ))}
+            {/* cincin putus-putus + titik orbit */}
+            <g className="ltd-orbit-2">
+              <circle
+                cx="200"
+                cy="200"
+                r="176"
+                fill="none"
+                stroke="#38bdf8"
+                strokeOpacity="0.5"
+                strokeWidth="1.5"
+                strokeDasharray="8 8"
+              />
+              <circle
+                cx="200"
+                cy="24"
+                r="6"
+                fill="#38bdf8"
+                style={{ filter: "drop-shadow(0 0 6px #38bdf8)" }}
+              />
             </g>
-
-            {/* Bawah */}
-            <g strokeWidth="9.5" strokeLinecap="round">
-              {POS.map((x, i) => (
-                <line
-                  key={`b${x}`}
-                  x1={x}
-                  y1={238}
-                  x2={x}
-                  y2={266}
-                  className={PIN_CLASS[3 - i]}
-                />
-              ))}
-            </g>
-            <g fill="#38bdf8">
-              {POS.map((x, i) => (
-                <circle
-                  key={`bn${x}`}
-                  cx={x}
-                  cy={274}
-                  r={3}
-                  className="ltd-signal"
-                  style={{ animationDelay: `${DELAY[3 - i]}s` }}
-                />
-              ))}
-            </g>
-
-            {/* Kiri */}
-            <g strokeWidth="9.5" strokeLinecap="round">
-              {POS.map((y, i) => (
-                <line
-                  key={`l${y}`}
-                  x1={54}
-                  y1={y}
-                  x2={82}
-                  y2={y}
-                  className={PIN_CLASS[i]}
-                />
-              ))}
-            </g>
-            <g fill="#38bdf8">
-              {POS.map((y, i) => (
-                <circle
-                  key={`ln${y}`}
-                  cx={46}
-                  cy={y}
-                  r={3}
-                  className="ltd-signal"
-                  style={{ animationDelay: `${DELAY[i]}s` }}
-                />
-              ))}
-            </g>
-
-            {/* Kanan */}
-            <g strokeWidth="9.5" strokeLinecap="round">
-              {POS.map((y, i) => (
-                <line
-                  key={`r${y}`}
-                  x1={238}
-                  y1={y}
-                  x2={266}
-                  y2={y}
-                  className={PIN_CLASS[3 - i]}
-                />
-              ))}
-            </g>
-            <g fill="#38bdf8">
-              {POS.map((y, i) => (
-                <circle
-                  key={`rn${y}`}
-                  cx={274}
-                  cy={y}
-                  r={3}
-                  className="ltd-signal"
-                  style={{ animationDelay: `${DELAY[3 - i]}s` }}
-                />
-              ))}
-            </g>
-
-            {/* Body chip */}
-            <rect
-              x="94"
-              y="94"
-              width="132"
-              height="132"
-              rx="24"
-              fill="none"
-              strokeWidth="11"
-              style={{ stroke: "var(--ltd-chip-base)" }}
-            />
-            <rect
-              x="94"
-              y="94"
-              width="132"
-              height="132"
-              rx="24"
-              fill="none"
-              stroke={`url(#${gradId})`}
-              strokeWidth="11"
-              strokeLinecap="round"
-              className="ltd-chip-flow"
-            />
-
-            {/* Huruf LTD */}
-            <g className="ltd-letters" style={{ fill: "var(--ltd-letter)" }}>
-              <path d="M 118 124 L 129 133 L 129 173 L 135 179 L 157 179 L 157 190 L 130 190 L 118 178 Z" />
-              <path d="M 130 119 L 185 119 L 190 130 L 157 130 L 157 172 L 146 172 L 146 130 L 135 130 Z" />
-              <path
-                fillRule="evenodd"
-                d="M 165 136 L 192 136 L 205 163 L 192 190 L 165 190 Z M 176 147 L 185 147 L 193 163 L 185 179 L 176 179 Z"
+            {/* busur terang */}
+            <g className="ltd-orbit-1">
+              <circle
+                cx="200"
+                cy="200"
+                r="162"
+                fill="none"
+                stroke="#3b82f6"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeDasharray="170 848"
               />
             </g>
           </svg>
         </div>
+
+        {/* Lapisan 3: logo (ikut kursor + miring 3D halus) */}
+        <div data-depth="22" data-tilt="1" className="ltd-layer">
+          <div className="ltd-float">
+            <svg
+              className="ltd-svg"
+              viewBox="0 0 400 400"
+              role="img"
+              aria-label="Logo Laboratorium Teknik Digital"
+            >
+              <defs>
+                <radialGradient id="ltd-badge-grad" cx="50%" cy="40%" r="70%">
+                  <stop offset="0%" className="ltd-stop-1" />
+                  <stop offset="100%" className="ltd-stop-2" />
+                </radialGradient>
+              </defs>
+
+              <circle cx="200" cy="200" r="140" className="ltd-badge" />
+
+              {PINS.map((p, i) => (
+                <g key={i}>
+                  <line
+                    x1={p.x1}
+                    y1={p.y1}
+                    x2={p.x2}
+                    y2={p.y2}
+                    className={`ltd-pin ltd-pin-${p.n}`}
+                  />
+                  <circle
+                    cx={p.cx}
+                    cy={p.cy}
+                    r="3.5"
+                    className="ltd-signal"
+                    style={{ animationDelay: `${(p.n - 1) * 0.25}s` }}
+                  />
+                </g>
+              ))}
+
+              <rect
+                x="140"
+                y="140"
+                width="120"
+                height="120"
+                rx="20"
+                className="ltd-chip-body"
+              />
+              <rect
+                x="140"
+                y="140"
+                width="120"
+                height="120"
+                rx="20"
+                pathLength={520}
+                className="ltd-chip-flow"
+              />
+
+              <text
+                x="200"
+                y="217"
+                textAnchor="middle"
+                className="ltd-letters"
+              >
+                LTD
+              </text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Pilihan tema logo */}
+      <div className="flex items-center gap-1 rounded-full border border-white/10 bg-slate-900/70 p-1 text-xs backdrop-blur">
+        <span className="px-2 text-slate-400">Tema Logo:</span>
+        {OPSI_TEMA.map(([k, label]) => (
+          <button
+            key={k}
+            type="button"
+            onClick={() => setVarian(k)}
+            className={`rounded-full px-3 py-1.5 font-semibold transition ${
+              varian === k
+                ? "bg-blue-600 text-white shadow"
+                : "text-slate-300 hover:bg-white/10"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
     </div>
   );
 }
-
-export default AnimasiLogoHero;

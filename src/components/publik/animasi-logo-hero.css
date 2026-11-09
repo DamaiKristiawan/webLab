@@ -22,21 +22,74 @@
   --ltd-letter: #0f172a;
 }
 
-/* 1. Melayang */
+/* ---------- Layout & lapisan (untuk gerak mengikuti kursor) ---------- */
+.ltd-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  perspective: 900px;
+}
+.ltd-layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.ltd-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ---------- Bentuk logo ---------- */
+.ltd-badge {
+  fill: url(#ltd-badge-grad);
+  stroke: var(--ltd-ring-stroke);
+  stroke-width: 3;
+}
+.ltd-stop-1 { stop-color: var(--ltd-surface-1); }
+.ltd-stop-2 { stop-color: var(--ltd-surface-2); }
+
+.ltd-pin {
+  stroke: var(--ltd-pin-base);
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+.ltd-chip-body {
+  fill: var(--ltd-surface-1);
+  stroke: var(--ltd-chip-base);
+  stroke-width: 7;
+}
+.ltd-letters {
+  fill: var(--ltd-letter);
+  font-family: Inter, system-ui, Arial, sans-serif;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+.ltd-signal { fill: #38bdf8; }
+
+/* 1. Melayang (dipasang di elemen DALAM, bukan yang digerakkan kursor) */
 @keyframes ltdFloat {
   0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-  50%      { transform: translateY(-16px) rotate(1.5deg) scale(1.02); }
+  50%      { transform: translateY(-10px) rotate(1deg) scale(1.015); }
 }
 .ltd-float {
+  width: 100%;
+  height: 100%;
   animation: ltdFloat calc(4s / var(--anim-speed)) ease-in-out infinite;
 }
 
-/* 2. Cahaya berjalan mengelilingi body chip */
+/* 2. Cahaya berjalan mengelilingi body chip (pakai pathLength=520) */
 @keyframes ltdCircuit {
   from { stroke-dashoffset: 520; }
   to   { stroke-dashoffset: 0; }
 }
 .ltd-chip-flow {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 4;
+  stroke-linecap: round;
   stroke-dasharray: 90 430;
   animation: ltdCircuit calc(3s / var(--anim-speed)) linear infinite;
   filter: drop-shadow(0 0 8px #38bdf8);
@@ -64,9 +117,15 @@
   animation: ltdDot calc(2s / var(--anim-speed)) ease-in-out infinite;
 }
 
-/* 5. Cincin orbit */
+/* 5. Cincin orbit (berputar di pusat viewBox) */
 @keyframes ltdSpinCW  { to { transform: rotate(360deg); } }
 @keyframes ltdSpinCCW { to { transform: rotate(-360deg); } }
+.ltd-orbit-1,
+.ltd-orbit-2,
+.ltd-orbit-3 {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+}
 .ltd-orbit-1 { animation: ltdSpinCW  calc(22s / var(--anim-speed)) linear infinite; }
 .ltd-orbit-2 { animation: ltdSpinCCW calc(15s / var(--anim-speed)) linear infinite; }
 .ltd-orbit-3 { animation: ltdSpinCW  calc(30s / var(--anim-speed)) linear infinite; }
@@ -76,7 +135,13 @@
   0%, 100% { transform: scale(0.92); opacity: 0.55; }
   50%      { transform: scale(1.18); opacity: 0.95; }
 }
-.ltd-glow { animation: ltdBreath calc(4s / var(--anim-speed)) ease-in-out infinite; }
+.ltd-glow {
+  position: absolute;
+  inset: 12%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.55) 0%, rgba(37, 99, 235, 0) 70%);
+  animation: ltdBreath calc(4s / var(--anim-speed)) ease-in-out infinite;
+}
 
 /* 7. Denyut huruf LTD */
 @keyframes ltdLetterGlow {
