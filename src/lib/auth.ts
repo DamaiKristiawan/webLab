@@ -22,7 +22,7 @@ export async function buatSesi(staffId: number) {
   const store = await cookies();
   store.set(NAMA_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+       secure: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === "true" : process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * DURASI_HARI,
