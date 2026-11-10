@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: "25mb",
+      // Alamat yang boleh mengirim formulir ke server ini (di belakang proxy kampus)
+      allowedOrigins: ["lab-teknikdigital.eng.unila.ac.id", "10.10.248.66"],
     },
   },
   cacheComponents: true,
